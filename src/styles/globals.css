@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.primary-color:hover {
+  @apply text-[#FFA500];
+}
+.text-primary {
+  @apply text-[#FFA500];
+}
+.bg-primary {
+  @apply bg-[#FFA500];
+}
+.PENDING {
+  @apply text-yellow-500;
+}
+.COMPLETED {
+  @apply text-green-500;
+}
+.CANCELLED {
+  @apply text-gray-800;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  --tw-text-opacity: 1;
+  color: rgb(75 85 99 / var(--tw-text-opacity));
+}
+
+.container {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.bg-secondary {
+  background-color: #2b2d42 !important;
+}
+
+.text-secondary {
+  color: rgb(43 45 66 / 1) !important;
+}
+
+.text-primary {
+  color: rgb(250, 111, 5) !important;
+}
+.default_btn {
+  border-radius: 0.25rem;
+  border-width: 1px;
+  --tw-border-opacity: 1;
+  border-color: rgb(255 140 0 / var(--tw-border-opacity)); /* Darker orange */
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 140 0 / var(--tw-bg-opacity)); /* Darker orange */
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+  transition-property:
+    color,
+    background-color,
+    border-color,
+    text-decoration-color,
+    fill,
+    stroke,
+    opacity,
+    box-shadow,
+    transform,
+    filter,
+    backdrop-filter,
+    -webkit-backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+
+.bg-facebook {
+  background-color: #3b5999;
+  border: 1px solid #3b5999;
+}
+
+.bg-google {
+  background-color: #d85040;
+  border: 1px solid #d85040;
+}
+
+.box_shadow {
+  box-shadow: 0px 0px 16px rgb(0 0 0 / 6%);
+}
+.admin-primary-bg {
+  background-color: #f3f3f3;
+}
