@@ -4,6 +4,7 @@ import { IOrder } from "./order";
 import { IProduct } from "./product";
 
 export interface IShop {
+  icon: string;
   id: string;
   shopName: string;
   shopLogo?: string;

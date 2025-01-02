@@ -25,7 +25,7 @@ const Header = () => {
   };
 
   return (
-    <nav className="bg-orange-400 py-3">
+    <nav className="bg-orange-400 py-3 pl-2 pr-2">
       <div className="container mx-auto px-6 lg:px-12 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="lg:hidden w-[120px]">

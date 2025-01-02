@@ -5,13 +5,13 @@ import Search from "./Search"; // Ensure you update this component to use an ico
 const TopHeader = () => {
   return (
     <header className="py-3 hidden lg:block">
-      <div className="container mx-auto flex justify-between items-center pl-8 pr-8">
+      <div className="container mx-auto flex justify-between items-center pl-12 pr-12">
         {/* Logo */}
         <Link href="/" className="w-[125px]">
           <img
             src="https://res.cloudinary.com/dwelabpll/image/upload/v1734166983/Screenshot_2024-12-14_150213-removebg-preview_nemgmt.png" // Replace with your actual logo image path
             alt="Dokan Express Logo"
-            className="w-full h-auto"
+            className="w-full h-auto "
           />
         </Link>
 

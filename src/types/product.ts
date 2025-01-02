@@ -3,6 +3,7 @@ import { IReview } from "./review";
 import { IShop } from "./shop";
 
 export interface IProduct {
+  relatedProducts: any;
   id: string;
   name: string;
   description: string;
