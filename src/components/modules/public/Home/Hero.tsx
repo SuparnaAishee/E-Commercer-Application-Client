@@ -53,11 +53,11 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="w-full py-6 pr-36">
-      <div className="mx-auto max-w-7xl ">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] ">
+    <section className="w-full py-6 px-4 md:px-6 lg:pr-36">
+      <div className="mx-auto max-w-7xl">
+        <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[1fr_380px]">
           {/* Main Slider */}
-          <div className="relative h-[430px] w-[1000px] overflow-hidden rounded bg-gray-100 shadow-md">
+          <div className="relative h-[300px] sm:h-[350px] md:h-[400px] lg:h-[430px] w-full lg:w-[1000px] overflow-hidden rounded bg-gray-100 shadow-md">
             {/* Slider Track */}
             <div className="h-full w-full">
               {slides.map((slide, index) => (
@@ -71,23 +71,25 @@ export default function Hero() {
                         : "translate-x-full opacity-0"
                   }`}
                 >
-                  <div className="grid h-full w-full grid-cols-1 items-center p-8 md:grid-cols-2">
-                    <div className="space-y-4 pr-4">
-                      <p className="text-sm font-medium text-blue-500">
+                  <div className="grid h-full w-full grid-cols-1 items-center p-4 sm:p-6 md:p-8 md:grid-cols-2">
+                    <div className="space-y-2 sm:space-y-3 md:space-y-4 pr-2 md:pr-4">
+                      <p className="text-xs sm:text-sm font-medium text-blue-500">
                         {slide.subtitle}
                       </p>
-                      <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">
+                      <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">
                         {slide.title} 2nd Edition
                       </h2>
-                      <p className="text-gray-600">{slide.description}</p>
+                      <p className="text-sm md:text-base text-gray-600 hidden sm:block">
+                        {slide.description}
+                      </p>
                       <Link
                         href="#"
-                        className="group mt-2 inline-flex items-center rounded bg-orange-500 px-6 py-2 text-white transition-all hover:bg-orange-600"
+                        className="group mt-2 inline-flex items-center rounded bg-orange-500 px-4 sm:px-6 py-1 sm:py-2 text-sm md:text-base text-white transition-all hover:bg-orange-600"
                       >
                         Shop Now
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          className="ml-2 h-4 w-4 transform transition-transform group-hover:translate-x-1"
+                          className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4 transform transition-transform group-hover:translate-x-1"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -102,10 +104,10 @@ export default function Hero() {
                       </Link>
                     </div>
                     <div className="relative flex h-full items-center justify-center">
-                      <div className="absolute right-0 top-8 z-10 rounded-full bg-blue-500 px-4 py-2 text-xl font-bold text-white">
+                      <div className="absolute right-0 top-4 sm:top-8 z-10 rounded-full bg-blue-500 px-3 py-1 sm:px-4 sm:py-2 text-sm sm:text-xl font-bold text-white">
                         ${slide.price}
                       </div>
-                      <div className="relative h-56 w-56 md:h-64 md:w-64">
+                      <div className="relative h-32 w-32 sm:h-40 sm:w-40 md:h-56 md:w-56 lg:h-64 lg:w-64">
                         <Image
                           src={slide.image || "/placeholder.svg"}
                           alt={slide.title}
@@ -121,12 +123,12 @@ export default function Hero() {
             </div>
 
             {/* Slider Controls */}
-            <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+            <div className="absolute bottom-2 sm:bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-2">
               {slides.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentSlide(index)}
-                  className={`h-2 w-2 rounded-full transition-colors ${
+                  className={`h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full transition-colors ${
                     currentSlide === index ? "bg-orange-500" : "bg-gray-300"
                   }`}
                   aria-label={`Go to slide ${index + 1}`}
@@ -136,12 +138,12 @@ export default function Hero() {
 
             <button
               onClick={prevSlide}
-              className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/80 p-2 text-gray-800 shadow-sm transition-all hover:bg-white hover:shadow-md"
+              className="absolute left-2 sm:left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/80 p-1 sm:p-2 text-gray-800 shadow-sm transition-all hover:bg-white hover:shadow-md"
               aria-label="Previous slide"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
+                className="h-4 w-4 sm:h-5 sm:w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -156,12 +158,12 @@ export default function Hero() {
             </button>
             <button
               onClick={nextSlide}
-              className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/80 p-2 text-gray-800 shadow-sm transition-all hover:bg-white hover:shadow-md"
+              className="absolute right-2 sm:right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/80 p-1 sm:p-2 text-gray-800 shadow-sm transition-all hover:bg-white hover:shadow-md"
               aria-label="Next slide"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
+                className="h-4 w-4 sm:h-5 sm:w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -177,23 +179,25 @@ export default function Hero() {
           </div>
 
           {/* Side Products */}
-          <div className="flex flex-col gap-4">
-            {/* Sony Headphones */}
-            <div className="group relative h-[220px] w-[400px] overflow-hidden rounded bg-orange-300 p-6 shadow-md transition-transform hover:scale-[1.02]">
+          <div className="flex flex-col gap-4 w-full lg:w-[400px]">
+            {/* Phillips Mixer */}
+            <div className="group relative h-[180px] sm:h-[200px] md:h-[220px] w-full overflow-hidden rounded bg-orange-300 p-4 sm:p-6 shadow-md transition-transform hover:scale-[1.02]">
               <div className="flex h-full items-center justify-between">
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-black">summer sells</p>
-                  <h3 className="text-xl font-bold text-white">
+                <div className="space-y-1 sm:space-y-2">
+                  <p className="text-xs sm:text-sm font-medium text-black">
+                    summer sells
+                  </p>
+                  <h3 className="text-lg sm:text-xl font-bold text-white">
                     Phillips Mixer Grinder
                   </h3>
                   <Link
                     href="#"
-                    className="group mt-2 inline-flex items-center rounded bg-black px-4 py-2 text-white transition-all hover:bg-black"
+                    className="group mt-1 sm:mt-2 inline-flex items-center rounded bg-black px-3 sm:px-4 py-1 sm:py-2 text-sm sm:text-base text-white transition-all hover:bg-black"
                   >
                     Shop Now
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="ml-1 h-4 w-4 transform transition-transform group-hover:translate-x-1"
+                      className="ml-1 h-3 w-3 sm:h-4 sm:w-4 transform transition-transform group-hover:translate-x-1"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -207,7 +211,7 @@ export default function Hero() {
                     </svg>
                   </Link>
                 </div>
-                <div className="relative h-40 w-40 transform transition-transform group-hover:scale-105 group-hover:rotate-3">
+                <div className="relative h-28 w-28 sm:h-32 sm:w-32 md:h-40 md:w-40 transform transition-transform group-hover:scale-105 group-hover:rotate-3">
                   <Image
                     src="https://pngfre.com/wp-content/uploads/Mixer-Grinder-2.png"
                     alt="mixture"
@@ -218,21 +222,21 @@ export default function Hero() {
               </div>
             </div>
 
-            {/* Samsung Watch */}
-            <div className="group relative h-[195px] w-[400px] overflow-hidden rounded bg-gray-100 p-6 shadow-md transition-transform hover:scale-[1.02]">
+            {/* Beauty Products */}
+            <div className="group relative h-[160px] sm:h-[180px] md:h-[195px] w-full overflow-hidden rounded bg-gray-100 p-4 sm:p-6 shadow-md transition-transform hover:scale-[1.02]">
               <div className="flex h-full items-center justify-between">
-                <div className="space-y-2">
-                  <h3 className="text-xl font-bold text-gray-900">
+                <div className="space-y-1 sm:space-y-2">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900">
                     Affordable Beauty Products
                   </h3>
                   <Link
                     href="#"
-                    className="group mt-2 inline-flex items-center rounded bg-orange-500 px-4 py-2 text-white transition-all hover:bg-orange-600"
+                    className="group mt-1 sm:mt-2 inline-flex items-center rounded bg-orange-500 px-3 sm:px-4 py-1 sm:py-2 text-sm sm:text-base text-white transition-all hover:bg-orange-600"
                   >
                     Shop Now
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="ml-1 h-4 w-4 transform transition-transform group-hover:translate-x-1"
+                      className="ml-1 h-3 w-3 sm:h-4 sm:w-4 transform transition-transform group-hover:translate-x-1"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -246,10 +250,10 @@ export default function Hero() {
                     </svg>
                   </Link>
                 </div>
-                <div className="relative h-40 w-full transform transition-transform group-hover:scale-105 group-hover:rotate-3">
+                <div className="relative h-28 w-full sm:h-32 md:h-40 transform transition-transform group-hover:scale-105 group-hover:rotate-3">
                   <Image
                     src="https://png.pngtree.com/png-clipart/20250106/original/pngtree-cosmetics-beauty-products-mockup-png-image_19401775.png"
-                    alt="Samsung Galaxy Watch 4"
+                    alt="Beauty Products"
                     fill
                     className="object-contain"
                   />
@@ -262,7 +266,6 @@ export default function Hero() {
     </section>
   );
 }
-
 // "use client";
 
 // import React from "react";

@@ -1,9 +1,8 @@
 "use client";
 
-import BreadCrumbs from "@/src/components/shared/admin/BreadCrumbs/BreadCrumbs";
+
 import AdminSidebar from "@/src/components/shared/admin/Sidebar/Sidebar";
-import Header from "@/src/components/shared/Header/Header";
-import TopHeader from "@/src/components/shared/Header/TopHeader";
+
 import { IChildren } from "@/src/types/global";
 import React from "react";
 

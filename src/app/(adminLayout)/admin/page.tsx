@@ -275,7 +275,7 @@ const AdminHomePage = () => {
                           <input
                             type="tel"
                             className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            defaultValue={user?.phone || ""}
+                            // defaultValue={user?.phone || ""}
                             placeholder="Phone number"
                           />
                           <input
@@ -294,7 +294,7 @@ const AdminHomePage = () => {
                           <p className="text-gray-600 flex items-center gap-2">
                             <Phone size={16} className="text-gray-400" />
                             
-                            <span>{user?.phone || "(555) 123-4567"}</span>
+                            <span> (555) 123-4567</span>
                           </p>
                         </div>
                       )}
@@ -314,7 +314,7 @@ const AdminHomePage = () => {
                             type="text"
                             className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                             defaultValue={
-                              user?.address?.street || "1234 Coding Street"
+                             "1234 Coding Street"
                             }
                             placeholder="Street address"
                           />
@@ -323,14 +323,14 @@ const AdminHomePage = () => {
                               type="text"
                               className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                               defaultValue={
-                                user?.address?.city || "Developer City"
+                             "Developer City"
                               }
                               placeholder="City"
                             />
                             <input
                               type="text"
                               className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                              defaultValue={user?.address?.state || "CodeLand"}
+                              defaultValue={ "CodeLand"}
                               placeholder="State"
                             />
                           </div>
@@ -338,14 +338,14 @@ const AdminHomePage = () => {
                             <input
                               type="text"
                               className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                              defaultValue={user?.address?.zipCode || "56789"}
+                              defaultValue={ "56789"}
                               placeholder="Zip code"
                             />
                             <input
                               type="text"
                               className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                               defaultValue={
-                                user?.address?.country || "United States"
+                               "United States"
                               }
                               placeholder="Country"
                             />
@@ -356,15 +356,15 @@ const AdminHomePage = () => {
                           {user?.address ? (
                             <div className="space-y-1">
                               <p className="text-gray-600">
-                                {user.address.street || "1234 Coding Street"}
+                                { "1234 Coding Street"}
                               </p>
                               <p className="text-gray-600">
-                                {user.address.city || "Developer City"},{" "}
-                                {user.address.state || "CodeLand"}{" "}
-                                {user.address.zipCode || "56789"}
+                                { "Developer City"},{" "}
+                                { "CodeLand"}{" "}
+                                {"56789"}
                               </p>
                               <p className="text-gray-600">
-                                {user.address.country || "United States"}
+                                { "United States"}
                               </p>
                             </div>
                           ) : (

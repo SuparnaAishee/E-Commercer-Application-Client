@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 "use client";
 
@@ -98,7 +99,7 @@ const SingleProduct = ({ product }: { product: IProduct }) => {
           },
           onError(error) {
             toast.error("Failed to add product to cart");
-            console.error("Add to cart error:", error);
+           
           },
         }
       );

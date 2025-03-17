@@ -190,10 +190,10 @@ export default function AboutUsPage() {
                 Our Story
               </div>
               <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-gray-900">
-                We're on a mission to make shopping better
+                We&apos;re on a mission to make shopping better
               </h1>
               <p className="text-gray-600 md:text-xl">
-                Founded with passion and purpose, we've grown from a small idea
+                Founded with passion and purpose, we&apos;ve grown from a small idea
                 to a trusted brand that puts customers first.
               </p>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
@@ -312,7 +312,7 @@ export default function AboutUsPage() {
                 Sustainability
               </h3>
               <p className="text-center text-gray-600">
-                We're committed to reducing our environmental impact through
+                We&apos;re committed to reducing our environmental impact through
                 responsible practices.
               </p>
             </motion.div>
@@ -358,7 +358,7 @@ export default function AboutUsPage() {
                 Our Journey
               </div>
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-gray-900">
-                How we've grown
+                How we&apos;ve grown
               </h2>
               <p className="max-w-[900px] text-gray-600 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                 From humble beginnings to where we are today, our journey has
@@ -696,7 +696,7 @@ export default function AboutUsPage() {
                         Continuous Innovation
                       </h3>
                       <p className="text-gray-600">
-                        We're constantly exploring new products, technologies,
+                        We&apos;re constantly exploring new products, technologies,
                         and ways to improve your shopping experience. Innovation
                         is at the core of our business.
                       </p>
@@ -770,7 +770,7 @@ export default function AboutUsPage() {
                 What our customers say
               </h2>
               <p className="max-w-[900px] text-gray-600 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Don't just take our word for it - hear from our satisfied
+                Don&apos;t just take our word for it - hear from our satisfied
                 customers.
               </p>
             </div>
@@ -798,7 +798,7 @@ export default function AboutUsPage() {
                           </div>
                           <div className="space-y-2">
                             <p className="text-lg italic text-gray-700">
-                              "{testimonial.content}"
+                              &quot;{testimonial.content}&quot;
                             </p>
                             <div>
                               <h4 className="font-semibold text-gray-900">
@@ -851,7 +851,7 @@ export default function AboutUsPage() {
                 Contact us
               </h2>
               <p className="max-w-[900px] text-gray-600 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Have questions or feedback? We'd love to hear from you.
+                Have questions or feedback? We&apos;d love to hear from you.
               </p>
             </div>
           </div>

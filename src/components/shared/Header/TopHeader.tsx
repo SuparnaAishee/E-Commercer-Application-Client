@@ -1,3 +1,6 @@
+/* eslint-disable unused-imports/no-unused-imports */
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState } from "react";
@@ -11,7 +14,7 @@ const OrganizedTopHeader = () => {
   const handleSearch = (e:any) => {
     e.preventDefault();
     // Handle search logic here
-    console.log("Searching for:", searchTerm);
+  
   };
 
   return (

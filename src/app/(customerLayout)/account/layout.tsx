@@ -2,7 +2,7 @@
 
 import Header from "@/src/components/shared/Header/Header";
 import TopHeader from "@/src/components/shared/Header/TopHeader";
-import BreadCrumbs from "@/src/components/shared/user/BreadCrumbs/BreadCrumbs";
+
 import UserSidebar from "@/src/components/shared/user/Sidebar/Sidebar";
 import { IChildren } from "@/src/types/global";
 import React from "react";

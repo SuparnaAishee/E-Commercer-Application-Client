@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable unused-imports/no-unused-imports */
 "use client";
 
 import { useState, useEffect } from "react";

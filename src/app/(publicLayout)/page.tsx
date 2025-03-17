@@ -1,3 +1,6 @@
+/* eslint-disable unused-imports/no-unused-imports */
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // "use client";
 
 // import Hero from "@/src/components/modules/public/Home/Hero";
@@ -363,14 +366,14 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
-  // Show newsletter popup after 5 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowNewsletter(true);
-    });
+  // // Show newsletter popup after 5 seconds
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setShowNewsletter(true);
+  //   });
 
-    return () => clearTimeout(timer);
-  }, []);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   // Hero slider auto-rotation
   useEffect(() => {

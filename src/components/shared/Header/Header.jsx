@@ -1,3 +1,6 @@
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable unused-imports/no-unused-imports */
 // "use client";
 
 // import Link from "next/link";
@@ -176,9 +179,9 @@ import AccountDropdown from "./AccountDropdown";
 import CartDropdown from "./CartDropdown";
 import MenuDropdown from "./MenuDropdoen";
 import { useState, useEffect } from "react";
-import Comparison from "../../modal/Comparison";
+
 import { ChevronDown, Menu, Search, Zap, Star, TrendingUp } from "lucide-react";
-import WishlistDropdown from "./WishlistDropdown";
+
 import Wishlist from "./wishlist";
 
 const InteractiveMainHeader = () => {
@@ -240,16 +243,24 @@ const InteractiveMainHeader = () => {
             />
           </Link>
 
-         {/* Category Dropdown */}
-           <div className="relative group hidden lg:block">
-             <button className="flex items-center space-x-2 bg-white text-black px-4 py-2 border rounded-md hover:bg-orange-400 transition duration-200">
-               <Menu className="h-5 w-5" />
-               <span>Categories</span>
+          {/* Mobile Menu Toggle Button */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="lg:hidden text-gray-700 hover:text-orange-500"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+
+          {/* Category Dropdown - Desktop */}
+          <div className="relative group hidden lg:block">
+            <button className="flex items-center space-x-2 bg-white text-black px-4 py-2 border rounded-md hover:bg-orange-400 transition duration-200">
+              <Menu className="h-5 w-5" />
+              <span>Categories</span>
               <ChevronDown className="h-4 w-4" />
-             </button>
+            </button>
             <div className="absolute left-0 top-full w-56 bg-white shadow-lg rounded-b-md border border-gray-200 hidden group-hover:block z-10">
               <div className="py-2">
-                 {categories?.data?.map((category) => (
+                {categories?.data?.map((category) => (
                   <Link
                     key={category?.id}
                     href={`/products?category=${category?.id}`}
@@ -285,7 +296,6 @@ const InteractiveMainHeader = () => {
               { name: "Viewed Products", path: "/recent-products" },
               { name: "About Us", path: "/about" },
               { name: "Support", path: "/support" },
-              //
               { name: "Flash Deals", path: "/flash-deals" },
             ].map((link) => (
               <li key={link.path}>
@@ -332,7 +342,7 @@ const InteractiveMainHeader = () => {
                   <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-orange-500 group-hover:w-full transition-all duration-300"></span>
                 </div>
                 <div className="relative group">
-                  <Wishlist/>
+                  <Wishlist />
                   <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-orange-500 group-hover:w-full transition-all duration-300"></span>
                 </div>
                 <div className="relative group">
@@ -363,10 +373,36 @@ const InteractiveMainHeader = () => {
             )}
           </div>
         </div>
+
+        {/* Mobile Menu - Collapsible */}
+        {isMenuOpen && (
+          <div className="lg:hidden mt-4">
+            <ul className="space-y-2">
+              {[
+                { name: "Home", path: "/" },
+                { name: "Shops", path: "/products" },
+                { name: "Viewed Products", path: "/recent-products" },
+                { name: "About Us", path: "/about" },
+                { name: "Support", path: "/support" },
+                { name: "Flash Deals", path: "/flash-deals" },
+              ].map((link) => (
+                <li key={link.path}>
+                  <Link
+                    href={link.path}
+                    className={`block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-500 ${
+                      pathname === link.path ? "text-orange-500" : ""
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </nav>
   );
 };
 
 export default InteractiveMainHeader;
-

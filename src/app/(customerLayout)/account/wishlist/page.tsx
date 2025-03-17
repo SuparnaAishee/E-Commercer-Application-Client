@@ -39,7 +39,7 @@ const Wishlist = () => {
     { name: "page", value: page },
   ]);
   const meta = data?.meta;
-  console.log(data);
+
   const handleDeleteWishlist = (id: string) => {
     deleteWishlist(id, {
       onSuccess(data) {

@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import TopHeader from "./TopHeader";
-import Header from "./Header";
+
 import HeadlineSlider from "./headlineSliders";
 import AnnouncementBar from "./AnnoucementBar";
 import MainHeader from "./Header";

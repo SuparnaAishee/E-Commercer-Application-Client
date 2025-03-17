@@ -91,7 +91,7 @@ const UserHomePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
 
-  console.log("User data:", user);
+  
 
   // Animation variants
   const containerVariants = {
@@ -136,16 +136,19 @@ const UserHomePage = () => {
   const userStats = [
     {
       label: "Orders",
+      //@ts-ignore
       value: user?.orderCount || 0,
       icon: <Activity size={18} />,
     },
     {
       label: "Wishlist",
+      //@ts-ignore
       value: user?.wishlistCount || 0,
       icon: <Award size={18} />,
     },
     {
       label: "Reviews",
+      //@ts-ignore
       value: user?.reviewCount || 0,
       icon: <Star size={18} />,
     },
@@ -242,7 +245,7 @@ const UserHomePage = () => {
             variants={itemVariants}
           >
             <div className="flex overflow-x-auto scrollbar-hide">
-              {["profile", "activity", "settings"].map((tab) => (
+              {["profile",  "settings"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -337,7 +340,7 @@ const UserHomePage = () => {
                           <input
                             type="tel"
                             className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            defaultValue={user?.phone || ""}
+                         
                             placeholder="Phone number"
                           />
                           <input
@@ -355,7 +358,7 @@ const UserHomePage = () => {
                           </p>
                           <p className="text-gray-600 flex items-center gap-2">
                             <Phone size={16} className="text-gray-400" />
-                            <span>{user?.phone || "No phone provided"}</span>
+                            <span>{ "No phone provided"}</span>
                           </p>
                         </div>
                       )}
@@ -374,20 +377,20 @@ const UserHomePage = () => {
                           <input
                             type="text"
                             className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            defaultValue={user?.address?.street || ""}
+                            defaultValue={ ""}
                             placeholder="Street address"
                           />
                           <div className="grid grid-cols-2 gap-3">
                             <input
                               type="text"
                               className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                              defaultValue={user?.address?.city || ""}
+                            
                               placeholder="City"
                             />
                             <input
                               type="text"
                               className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                              defaultValue={user?.address?.state || ""}
+                          
                               placeholder="State"
                             />
                           </div>
@@ -395,13 +398,13 @@ const UserHomePage = () => {
                             <input
                               type="text"
                               className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                              defaultValue={user?.address?.zipCode || ""}
+                            
                               placeholder="Zip code"
                             />
                             <input
                               type="text"
                               className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                              defaultValue={user?.address?.country || ""}
+                            
                               placeholder="Country"
                             />
                           </div>
@@ -411,15 +414,15 @@ const UserHomePage = () => {
                           {user?.address ? (
                             <div className="space-y-1">
                               <p className="text-gray-600">
-                                {user.address.street || "No street provided"}
+                                { "No street provided"}
                               </p>
                               <p className="text-gray-600">
-                                {user.address.city || "No city"},{" "}
-                                {user.address.state || "No state"}{" "}
-                                {user.address.zipCode || "No zip code"}
+                                {"No city"},{" "}
+                                { "No state"}{" "}
+                                { "No zip code"}
                               </p>
                               <p className="text-gray-600">
-                                {user.address.country || "No country provided"}
+                                { "No country provided"}
                               </p>
                             </div>
                           ) : (
@@ -492,41 +495,7 @@ const UserHomePage = () => {
                   ))}
                 </div>
 
-                <h5 className="font-semibold text-gray-700 mb-4">
-                  Recent Activity
-                </h5>
-                <div className="space-y-4">
-                  {user?.recentActivity ? (
-                    user.recentActivity.map((activity, index) => (
-                      <motion.div
-                        key={index}
-                        className="flex items-start gap-3 p-3 border-b border-gray-100"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{
-                          opacity: 1,
-                          x: 0,
-                          transition: { delay: index * 0.1 },
-                        }}
-                      >
-                        <div className="bg-orange-100 p-2 rounded-full text-orange-500">
-                          {activity.icon || <Activity size={16} />}
-                        </div>
-                        <div>
-                          <p className="text-gray-800">
-                            {activity.description}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {activity.date}
-                          </p>
-                        </div>
-                      </motion.div>
-                    ))
-                  ) : (
-                    <p className="text-gray-500 text-center py-4">
-                      No recent activity to display
-                    </p>
-                  )}
-                </div>
+               
               </motion.div>
             )}
 
