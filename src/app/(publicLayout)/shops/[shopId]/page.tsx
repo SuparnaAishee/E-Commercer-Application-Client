@@ -10,12 +10,12 @@ const SingleShopPage = async ({ params }: { params: { shopId: string } }) => {
   );
 
   return (
-    <div className="container pt-12">
+    <div className="container pt-12 pl-12 pr-12">
       {data?.data && <ShopCard shop={data?.data} />}
       {data?.data && (
-        <div className="pt-14">
+        <div className="pt-14 mb-20">
           <div className="flex items-start justify-between mb-[30px]">
-            <h2 className="text-[22px] sm:text-[32px] font-medium text-secondary">
+            <h2 className="text-2xl font-bold text-secondary">
               Products Of {data?.data?.shopName}
             </h2>
           </div>

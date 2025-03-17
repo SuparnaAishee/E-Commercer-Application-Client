@@ -13,7 +13,7 @@ const AccountPayout = ({ children }: IChildren) => {
       <main className="flex-grow">
         <TopHeader />
         <Header />
-        <BreadCrumbs />
+        {/* <BreadCrumbs /> */}
         <div className="container grid grid-cols-12 gap-6 pb-14">
           <UserSidebar />
           {children}

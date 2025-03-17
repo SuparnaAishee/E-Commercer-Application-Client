@@ -4,7 +4,7 @@ import React from "react";
 const WishlistDropdown = () => {
   return (
     <Link href="/" className="relative flex-col items-center">
-      <span className="text-white flex justify-center">
+      <span className="text-orange-500 flex justify-center">
         <svg width="28" height="28" viewBox="0 0 256 256">
           <path
             fill="currentColor"

@@ -102,7 +102,7 @@ const ManageProduct = () => {
 
         case "actions":
           return (
-            <div className="relative flex items-center justify-end gap-5">
+            <div className="relative flex items-center justify-end gap-5 pt-6">
               <UpdateProduct id={product.id} />
 
               <button
@@ -121,7 +121,7 @@ const ManageProduct = () => {
   );
 
   return (
-    <div className="col-span-12 lg:col-span-9">
+    <div className="col-span-12 lg:col-span-9 pt-6">
       <div className="flex justify-end gap-3 mb-5">
         <CreateFlashSale />
         <CreateProduct />

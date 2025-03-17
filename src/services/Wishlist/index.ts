@@ -1,27 +1,49 @@
-import { IResponse } from "@/src/types";
-import { IWishlist } from "@/src/types/wishlist";
-import axios from "axios";
+"use server";
 
+import { AxiosSecure } from "@/src/lib/AxiosSecure";
+import { IUpdateCartProductQuantity, TQueryParam } from "@/src/types";
 
-// Add product to wishlist
-export const addToWishlist = async (payload: { productId: string }) => {
-  const response = await axios.post<IResponse<IWishlist>>(
-    "/wishlist/add",
-    payload
-  );
-  return response.data;
+export const addToWishlist = async (payload: {
+  quantity: number;
+  productId: string;
+}) => {
+  try {
+    const { data } = await AxiosSecure.post(
+      "/wishlist/add-to-wishlist",
+      payload
+    );
+    return data;
+  } catch (error: any) {
+    return error.response.data;
+  }
 };
-
-// Get user's wishlist
-export const getWishlist = async () => {
-  const response = await axios.get<IResponse<IWishlist[]>>("/wishlist");
-  return response.data;
+export const getMyWishlist = async (query: TQueryParam[]) => {
+  try {
+    const params = new URLSearchParams();
+    if (query?.length > 0) {
+      query.forEach((item) => params.append(item.name, item.value as string));
+    }
+    const { data } = await AxiosSecure.get("/wishlist/my-wishlist", { params });
+    return data;
+  } catch (error: any) {
+    return error.response.data;
+  }
 };
-
-// Remove product from wishlist
-export const removeFromWishlist = async (productId: string) => {
-  const response = await axios.delete<IResponse<null>>(
-    `/wishlist/remove/${productId}`
-  );
-  return response.data;
+export const deleteWishlistProduct = async (id: string) => {
+  try {
+    const { data } = await AxiosSecure.delete(`/wishlist/${id}`);
+    return data;
+  } catch (error: any) {
+    return error.response.data;
+  }
+};
+export const updateWishlistProductQuantity = async (
+  payload: IUpdateCartProductQuantity
+) => {
+  try {
+    const { data } = await AxiosSecure.patch(`/wishlist/`, payload);
+    return data;
+  } catch (error: any) {
+    return error.response.data;
+  }
 };

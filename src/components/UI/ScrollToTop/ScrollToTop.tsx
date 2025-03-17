@@ -1,7 +1,7 @@
 "use client";
-import img from "@/src/assets/img";
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
+
+import { useEffect, useState } from "react";
+import { ChevronUp } from "lucide-react";
 
 const ScrollToTop = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -31,20 +31,10 @@ const ScrollToTop = () => {
       {isVisible && (
         <button
           onClick={scrollToTop}
-          style={{
-            position: "fixed",
-            bottom: "20px",
-            right: "20px",
-            backgroundColor: "white",
-            color: "white",
-            border: "none",
-            borderRadius: "50%",
-            padding: "5px",
-            cursor: "pointer",
-            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-          }}
+          className="fixed bottom-24 right-8 bg-white text-primary rounded-full p-3 cursor-pointer shadow-md hover:bg-gray-100 transition-all duration-300 z-50"
+          aria-label="Scroll to top"
         >
-          <Image height={50} width={50} alt="ScrollTop" src={img.scroll} />
+          <ChevronUp className="h-6 w-6" />
         </button>
       )}
     </>

@@ -1,49 +1,312 @@
 "use client";
 
-import React from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination, Navigation } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
 
-import PromoSection from "./banner1";
-import PromoSection2 from "./banner2";
-import PromoSection3 from "./banner3";
+export default function Hero() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const slides = [
+    {
+      id: 1,
+      title: "Apple MacBook Pro M3",
+      subtitle: "Power Meets Innovation",
+      description:
+        "Ultra-fast performance with the latest M3 chip, Liquid Retina XDR display, and all-day battery life.",
+      price: 499,
+      image:
+        "https://res.cloudinary.com/dwelabpll/image/upload/v1742070134/1883634_3-removebg-preview_qnvgny.png",
+    },
+    {
+      id: 2,
+      title: "Sony WH-1000XM5",
+      subtitle: "Unparalleled Sound Experience",
+      description:
+        "Industry-leading noise cancellation headphones with crystal-clear audio and up to 30 hours of battery life.",
+      price: 79,
+      image:
+        "https://res.cloudinary.com/dwelabpll/image/upload/v1742070162/360-RA-category-icon-20221202_f8g9wj.png",
+    },
+    {
+      id: 3,
+      title: "Ninja Foodi Smart Grill",
+      subtitle: "Cook Like a Pro",
+      description:
+        "Grill, air fry, roast, and bake all in one with smart temperature control.",
+      price: 99,
+      image:
+        "https://res.cloudinary.com/dwelabpll/image/upload/v1742070616/ninja-foodi-max-health-grill-and-air-fryer-grey-and-silver-or-ag551uk-did-electrical-2_ed7fe3b4-c9bc-4b8a-b3bf-6e822612e1c6_600x_nnlt80-removebg-preview_avsuia.png",
+    },
+  ];
 
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  };
 
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  };
 
-const Hero = () => {
+  useEffect(() => {
+    const timer = setInterval(nextSlide, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
-    <div className="w-full">
-      <div className="w-full flex items-center">
-        {/* Slider main container */}
-        <Swiper
-          autoplay={{
-            delay: 5000,
-            disableOnInteraction: false,
-          }}
-          pagination={{
-            clickable: true,
-          }}
-          modules={[Autoplay, Pagination, Navigation]}
-          className="mySwiper"
-        >
-          <SwiperSlide>
-           <PromoSection/>
-          </SwiperSlide>
-          <SwiperSlide>
-            <PromoSection2/>
-          </SwiperSlide>
-          <SwiperSlide>
-            <PromoSection3 />
-          </SwiperSlide>
-        </Swiper>
-      </div>
-    </div>
-  );
-};
+    <section className="w-full py-6 pr-36">
+      <div className="mx-auto max-w-7xl ">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] ">
+          {/* Main Slider */}
+          <div className="relative h-[430px] w-[1000px] overflow-hidden rounded bg-gray-100 shadow-md">
+            {/* Slider Track */}
+            <div className="h-full w-full">
+              {slides.map((slide, index) => (
+                <div
+                  key={slide.id}
+                  className={`absolute inset-0 h-full w-full transform transition-all duration-500 ease-in-out ${
+                    index === currentSlide
+                      ? "translate-x-0 opacity-100"
+                      : index < currentSlide
+                        ? "-translate-x-full opacity-0"
+                        : "translate-x-full opacity-0"
+                  }`}
+                >
+                  <div className="grid h-full w-full grid-cols-1 items-center p-8 md:grid-cols-2">
+                    <div className="space-y-4 pr-4">
+                      <p className="text-sm font-medium text-blue-500">
+                        {slide.subtitle}
+                      </p>
+                      <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">
+                        {slide.title} 2nd Edition
+                      </h2>
+                      <p className="text-gray-600">{slide.description}</p>
+                      <Link
+                        href="#"
+                        className="group mt-2 inline-flex items-center rounded bg-orange-500 px-6 py-2 text-white transition-all hover:bg-orange-600"
+                      >
+                        Shop Now
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="ml-2 h-4 w-4 transform transition-transform group-hover:translate-x-1"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M14 5l7 7m0 0l-7 7m7-7H3"
+                          />
+                        </svg>
+                      </Link>
+                    </div>
+                    <div className="relative flex h-full items-center justify-center">
+                      <div className="absolute right-0 top-8 z-10 rounded-full bg-blue-500 px-4 py-2 text-xl font-bold text-white">
+                        ${slide.price}
+                      </div>
+                      <div className="relative h-56 w-56 md:h-64 md:w-64">
+                        <Image
+                          src={slide.image || "/placeholder.svg"}
+                          alt={slide.title}
+                          fill
+                          className="object-contain"
+                          priority={index === 0}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
 
-export default Hero;
+            {/* Slider Controls */}
+            <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+              {slides.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentSlide(index)}
+                  className={`h-2 w-2 rounded-full transition-colors ${
+                    currentSlide === index ? "bg-orange-500" : "bg-gray-300"
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={prevSlide}
+              className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/80 p-2 text-gray-800 shadow-sm transition-all hover:bg-white hover:shadow-md"
+              aria-label="Previous slide"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+            <button
+              onClick={nextSlide}
+              className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/80 p-2 text-gray-800 shadow-sm transition-all hover:bg-white hover:shadow-md"
+              aria-label="Next slide"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+          </div>
+
+          {/* Side Products */}
+          <div className="flex flex-col gap-4">
+            {/* Sony Headphones */}
+            <div className="group relative h-[220px] w-[400px] overflow-hidden rounded bg-orange-300 p-6 shadow-md transition-transform hover:scale-[1.02]">
+              <div className="flex h-full items-center justify-between">
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-black">summer sells</p>
+                  <h3 className="text-xl font-bold text-white">
+                    Phillips Mixer Grinder
+                  </h3>
+                  <Link
+                    href="#"
+                    className="group mt-2 inline-flex items-center rounded bg-black px-4 py-2 text-white transition-all hover:bg-black"
+                  >
+                    Shop Now
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="ml-1 h-4 w-4 transform transition-transform group-hover:translate-x-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      />
+                    </svg>
+                  </Link>
+                </div>
+                <div className="relative h-40 w-40 transform transition-transform group-hover:scale-105 group-hover:rotate-3">
+                  <Image
+                    src="https://pngfre.com/wp-content/uploads/Mixer-Grinder-2.png"
+                    alt="mixture"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Samsung Watch */}
+            <div className="group relative h-[195px] w-[400px] overflow-hidden rounded bg-gray-100 p-6 shadow-md transition-transform hover:scale-[1.02]">
+              <div className="flex h-full items-center justify-between">
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-gray-900">
+                    Affordable Beauty Products
+                  </h3>
+                  <Link
+                    href="#"
+                    className="group mt-2 inline-flex items-center rounded bg-orange-500 px-4 py-2 text-white transition-all hover:bg-orange-600"
+                  >
+                    Shop Now
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="ml-1 h-4 w-4 transform transition-transform group-hover:translate-x-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      />
+                    </svg>
+                  </Link>
+                </div>
+                <div className="relative h-40 w-full transform transition-transform group-hover:scale-105 group-hover:rotate-3">
+                  <Image
+                    src="https://png.pngtree.com/png-clipart/20250106/original/pngtree-cosmetics-beauty-products-mockup-png-image_19401775.png"
+                    alt="Samsung Galaxy Watch 4"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// "use client";
+
+// import React from "react";
+// import { Swiper, SwiperSlide } from "swiper/react";
+// import { Autoplay, Pagination, Navigation } from "swiper/modules";
+// import "swiper/css";
+// import "swiper/css/navigation";
+
+// import PromoSection from "./banner1";
+// import PromoSection2 from "./banner2";
+// import PromoSection3 from "./banner3";
+
+// const Hero = () => {
+//   return (
+//     <div className="w-full">
+//       <div className="w-full flex items-center">
+//         {/* Slider main container */}
+//         <Swiper
+//           autoplay={{
+//             delay: 5000,
+//             disableOnInteraction: false,
+//           }}
+//           pagination={{
+//             clickable: true,
+//           }}
+//           modules={[Autoplay, Pagination, Navigation]}
+//           className="mySwiper"
+//         >
+//           <SwiperSlide>
+//            <PromoSection/>
+//           </SwiperSlide>
+//           <SwiperSlide>
+//             <PromoSection2/>
+//           </SwiperSlide>
+//           <SwiperSlide>
+//             <PromoSection3 />
+//           </SwiperSlide>
+//         </Swiper>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Hero;
 
 // "use client";
 

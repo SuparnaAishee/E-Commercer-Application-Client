@@ -1,22 +1,19 @@
-"use client";
-
-import Header from "@/src/components/shared/Header/Header";
-import TopHeader from "@/src/components/shared/Header/TopHeader";
-import BreadCrumbs from "@/src/components/shared/vendor/BreadCrumbs/BreadCrumbs";
 import VendorSidebar from "@/src/components/shared/vendor/Sidebar/Sidebar";
-import { IChildren } from "@/src/types/global";
-import React from "react";
+import type { IChildren } from "@/src/types/global";
 
 const layout = ({ children }: IChildren) => {
   return (
-    <div className="relative flex flex-col h-screen">
+    <div className="relative flex flex-col min-h-screen">
       <main className="flex-grow">
-        <TopHeader />
-        <Header />
-        <BreadCrumbs />
-        <div className="container grid grid-cols-12 gap-6 pb-14">
-          <VendorSidebar />
-          {children}
+        {/* <TopHeader />
+         */}
+        {/* <Header /> */}
+        {/* <BreadCrumbs /> */}
+        <div className="container mx-auto grid grid-cols-12 gap-6 pb-14 mt-8">
+          <div className="col-span-3">
+            <VendorSidebar />
+          </div>
+          <div className="col-span-9">{children}</div>
         </div>
       </main>
     </div>

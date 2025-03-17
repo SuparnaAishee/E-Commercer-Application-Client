@@ -1,21 +1,17 @@
-// types/wishlist.ts
+import { IProduct } from "./product";
+
 export interface IWishlist {
   id: string;
+  quantity: 1;
   productId: string;
   userId: string;
   createdAt: string;
-  product: {
-    discount_percentage: number;
-    isFlashSale: any;
-    id: string;
-    name: string;
-    images: string;
-    price: number;
-  };
+  updatedAt: string;
+  product: IProduct;
 }
-// types/index.ts
-export interface IResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
+
+export interface IUpdateWishlistProductQuantity {
+  productId: string;
+  type: "increment" | "decrement";
+  quantity: number;
 }

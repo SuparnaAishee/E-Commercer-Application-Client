@@ -1,5 +1,7 @@
 "use client";
 
+import type React from "react";
+
 import {
   Modal,
   ModalContent,
@@ -11,12 +13,19 @@ import {
   Input,
   Select,
   SelectItem,
+  Chip,
 } from "@nextui-org/react";
-import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import { type FieldValues, type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useCreateProduct } from "@/src/hooks/product";
 import { useEffect, useState } from "react";
-import { AiOutlinePlusCircle } from "react-icons/ai";
+import { AiOutlinePlusCircle, AiOutlineClose } from "react-icons/ai";
+import {
+  TbShoppingBag,
+  TbCurrencyDollar,
+  TbPackage,
+  TbCategory,
+} from "react-icons/tb";
 import Image from "next/image";
 import { TbFidgetSpinner } from "react-icons/tb";
 import { useGetAllCategory } from "@/src/hooks/category";
@@ -28,9 +37,19 @@ export default function CreateProduct() {
   const { mutate: createProduct, isPending, isSuccess } = useCreateProduct();
   const queryClient = useQueryClient();
   const { data: categories } = useGetAllCategory([]);
-  const { handleSubmit, register, reset } = useForm();
+  const {
+    handleSubmit,
+    register,
+    reset,
+    formState: { errors },
+  } = useForm();
 
   const handleUpdateProduct: SubmitHandler<FieldValues> = (values) => {
+    if (images.length === 0) {
+      toast.error("Please upload at least one product image");
+      return;
+    }
+
     const payload = Object.fromEntries(
       Object.entries({
         categoryId: values?.categoryId,
@@ -43,7 +62,7 @@ export default function CreateProduct() {
 
     const formData = new FormData();
     formData.append("data", JSON.stringify(payload));
-    for (let image of images) {
+    for (const image of images) {
       formData.append("files", image);
     }
     createProduct(formData, {
@@ -60,6 +79,7 @@ export default function CreateProduct() {
       },
     });
   };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (e.target.files) {
@@ -68,125 +88,240 @@ export default function CreateProduct() {
     }
   };
 
+  const removeImage = (index: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
   useEffect(() => {
     if (!isOpen) {
       setImages([]);
+      reset();
     }
-  }, [isOpen]);
+  }, [isOpen, reset]);
+
   return (
     <>
-      <Button onPress={onOpen}>Create Product</Button>
+      <Button
+        onPress={onOpen}
+        color="primary"
+        startContent={<TbShoppingBag />}
+        className="font-medium"
+      >
+        Create Product
+      </Button>
+
       <Modal
         size="2xl"
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         placement="top-center"
+        classNames={{
+          header: "border-b border-divider",
+          footer: "border-t border-divider",
+        }}
       >
         <ModalContent>
           {(onClose) => (
             <form onSubmit={handleSubmit(handleUpdateProduct)}>
               <ModalHeader className="flex flex-col gap-1">
-                Create Product
+                <div className="flex items-center gap-2">
+                  <TbShoppingBag className="text-primary" />
+                  <span>Create New Product</span>
+                </div>
+                <p className="text-xs text-default-500">
+                  Fill in the details to add a new product
+                </p>
               </ModalHeader>
+
               <ModalBody>
-                <div className="flex items-center gap-5">
-                  <Input
-                    labelPlacement="outside"
-                    {...register("name", { required: true })}
-                    label="Name"
-                    placeholder="Name"
-                    variant="bordered"
-                  />
-                  <Input
-                    labelPlacement="outside"
-                    {...register("price", { required: true })}
-                    label="Price"
-                    placeholder="Price"
-                    variant="bordered"
-                  />
-                </div>
-                <div className="flex items-center gap-5">
-                  <Input
-                    labelPlacement="outside"
-                    {...register("inventory", { required: true })}
-                    label="Inventory"
-                    placeholder="Inventory"
-                    variant="bordered"
-                  />
-                  {categories?.data && (
-                    <Select
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <Input
                       labelPlacement="outside"
-                      label="Product Category"
-                      {...register("categoryId", { required: true })}
+                      {...register("name", {
+                        required: "Product name is required",
+                      })}
+                      label="Name"
+                      placeholder="Enter product name"
                       variant="bordered"
-                      placeholder="Product Category"
-                      className="max-w-full"
-                      aria-label="Role"
-                    >
-                      {categories?.data?.map((category) => (
-                        <SelectItem key={category.id}>
-                          {category?.name}
-                        </SelectItem>
-                      ))}
-                    </Select>
-                  )}
-                </div>
+                      startContent={
+                        <TbShoppingBag className="text-default-400" />
+                      }
+                      isInvalid={!!errors.name}
+                      errorMessage={errors.name?.message?.toString()}
+                      className="flex-1"
+                    />
+                    <Input
+                      labelPlacement="outside"
+                      {...register("price", {
+                        required: "Price is required",
+                        min: {
+                          value: 0.01,
+                          message: "Price must be greater than 0",
+                        },
+                      })}
+                      label="Price"
+                      placeholder="Enter product price"
+                      variant="bordered"
+                      startContent={
+                        <TbCurrencyDollar className="text-default-400" />
+                      }
+                      isInvalid={!!errors.price}
+                      errorMessage={errors.price?.message?.toString()}
+                      className="flex-1"
+                    />
+                  </div>
 
-                <Input
-                  {...register("description", { required: true })}
-                  labelPlacement="outside"
-                  label="Description"
-                  placeholder="Description"
-                  variant="bordered"
-                />
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <Input
+                      labelPlacement="outside"
+                      {...register("inventory", {
+                        required: "Inventory is required",
+                        min: {
+                          value: 1,
+                          message: "Inventory must be at least 1",
+                        },
+                      })}
+                      label="Inventory"
+                      placeholder="Enter available quantity"
+                      variant="bordered"
+                      startContent={<TbPackage className="text-default-400" />}
+                      isInvalid={!!errors.inventory}
+                      errorMessage={errors.inventory?.message?.toString()}
+                      className="flex-1"
+                    />
+                    {categories?.data && (
+                      <div className="flex-1">
+                        <Select
+                          labelPlacement="outside"
+                          label="Product Category"
+                          {...register("categoryId", {
+                            required: "Category is required",
+                          })}
+                          variant="bordered"
+                          placeholder="Select product category"
+                          startContent={
+                            <TbCategory className="text-default-400" />
+                          }
+                          isInvalid={!!errors.categoryId}
+                          errorMessage={errors.categoryId?.message?.toString()}
+                          className="w-full"
+                        >
+                          {categories?.data?.map((category) => (
+                            <SelectItem key={category.id} value={category.id}>
+                              {category?.name}
+                            </SelectItem>
+                          ))}
+                        </Select>
+                      </div>
+                    )}
+                  </div>
 
-                <div className="mt-4">
-                  <label htmlFor="Image" className="text-xs">
-                    Product Images
-                  </label>
-                  <input
-                    type="file"
-                    onChange={handleImageChange}
-                    name="imageUrl"
-                    id="upload"
-                    className="hidden"
-                    multiple
+                  <Input
+                    {...register("description", {
+                      required: "Description is required",
+                      minLength: {
+                        value: 10,
+                        message: "Description must be at least 10 characters",
+                      },
+                    })}
+                    labelPlacement="outside"
+                    label="Description"
+                    placeholder="Describe your product in detail"
+                    variant="bordered"
+                    isInvalid={!!errors.description}
+                    errorMessage={errors.description?.message?.toString()}
                   />
-                  <div className="w-full flex items-center flex-wrap">
-                    <label htmlFor="upload">
-                      <AiOutlinePlusCircle
-                        size={30}
-                        className="mt-3 cursor-pointer"
-                        color="#555"
-                      />
-                    </label>
-                    {images &&
-                      images?.map((img, i) => (
-                        <Image
-                          key={i}
-                          height={120}
-                          width={120}
-                          src={URL.createObjectURL(img)}
-                          alt="Image"
-                          className="h-[120px] w-[120px] object-cover m-2"
+
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <label htmlFor="Image" className="text-sm font-medium">
+                        Product Images
+                      </label>
+                      <Chip
+                        color={images.length > 0 ? "success" : "danger"}
+                        variant="flat"
+                        size="sm"
+                      >
+                        {images.length}{" "}
+                        {images.length === 1 ? "image" : "images"}
+                      </Chip>
+                    </div>
+
+                    <div className="flex flex-wrap gap-3">
+                      <div className="border border-dashed border-default-300 rounded-md flex items-center justify-center w-[100px] h-[100px] hover:border-primary transition-colors">
+                        <input
+                          type="file"
+                          onChange={handleImageChange}
+                          name="imageUrl"
+                          id="upload"
+                          className="hidden"
+                          accept="image/*"
                         />
+                        <label
+                          htmlFor="upload"
+                          className="cursor-pointer flex flex-col items-center justify-center w-full h-full"
+                        >
+                          <AiOutlinePlusCircle
+                            size={24}
+                            className="text-default-400"
+                          />
+                          <span className="text-xs text-default-400 mt-1">
+                            Add Image
+                          </span>
+                        </label>
+                      </div>
+
+                      {images.map((img, i) => (
+                        <div key={i} className="relative group">
+                          <div className="w-[100px] h-[100px] rounded-md overflow-hidden border border-default-200">
+                            <Image
+                              fill
+                              src={
+                                URL.createObjectURL(img) || "/placeholder.svg"
+                              }
+                              alt="Product image"
+                              className="object-cover"
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeImage(i)}
+                            className="absolute -top-1 -right-1 bg-danger text-white rounded-full p-1 w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <AiOutlineClose size={12} />
+                          </button>
+                        </div>
                       ))}
+                    </div>
+
+                    {images.length === 0 && (
+                      <p className="text-xs text-danger mt-1">
+                        Please upload at least one product image
+                      </p>
+                    )}
                   </div>
                 </div>
               </ModalBody>
+
               <ModalFooter>
-                <Button color="danger" variant="flat" onPress={onClose}>
+                <Button
+                  color="danger"
+                  variant="flat"
+                  onPress={onClose}
+                  className="font-medium"
+                >
                   Cancel
                 </Button>
-                <Button type="submit" color="primary">
-                  {isPending && !isSuccess ? (
-                    <span className="flex items-center gap-2 justify-center text-base">
-                      <span>Please Wait</span>{" "}
-                      <TbFidgetSpinner className="animate-spin" />
-                    </span>
-                  ) : (
-                    <span> Create Product</span>
-                  )}
+                <Button
+                  type="submit"
+                  color="primary"
+                  isLoading={isPending && !isSuccess}
+                  spinner={<TbFidgetSpinner className="animate-spin" />}
+                  isDisabled={images.length === 0}
+                  className="font-medium"
+                >
+                  {isPending && !isSuccess ? "Creating..." : "Create Product"}
                 </Button>
               </ModalFooter>
             </form>
@@ -196,3 +331,202 @@ export default function CreateProduct() {
     </>
   );
 }
+
+// "use client";
+
+// import {
+//   Modal,
+//   ModalContent,
+//   ModalHeader,
+//   ModalBody,
+//   ModalFooter,
+//   Button,
+//   useDisclosure,
+//   Input,
+//   Select,
+//   SelectItem,
+// } from "@nextui-org/react";
+// import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+// import { toast } from "sonner";
+// import { useCreateProduct } from "@/src/hooks/product";
+// import { useEffect, useState } from "react";
+// import { AiOutlinePlusCircle } from "react-icons/ai";
+// import Image from "next/image";
+// import { TbFidgetSpinner } from "react-icons/tb";
+// import { useGetAllCategory } from "@/src/hooks/category";
+// import { useQueryClient } from "@tanstack/react-query";
+
+// export default function CreateProduct() {
+//   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+//   const [images, setImages] = useState<File[]>([]);
+//   const { mutate: createProduct, isPending, isSuccess } = useCreateProduct();
+//   const queryClient = useQueryClient();
+//   const { data: categories } = useGetAllCategory([]);
+//   const { handleSubmit, register, reset } = useForm();
+
+//   const handleUpdateProduct: SubmitHandler<FieldValues> = (values) => {
+//     const payload = Object.fromEntries(
+//       Object.entries({
+//         categoryId: values?.categoryId,
+//         name: values?.name,
+//         description: values?.description,
+//         inventory: Number(values?.inventory),
+//         price: Number(values?.price),
+//       }).filter(([_, value]) => value != null)
+//     );
+
+//     const formData = new FormData();
+//     formData.append("data", JSON.stringify(payload));
+//     for (let image of images) {
+//       formData.append("files", image);
+//     }
+//     createProduct(formData, {
+//       onSuccess(data) {
+//         if (data?.success) {
+//           reset();
+//           setImages([]);
+//           toast.success(data?.message);
+//           queryClient.invalidateQueries({ queryKey: ["my-products"] });
+//           onClose();
+//         } else {
+//           toast.error(data?.message);
+//         }
+//       },
+//     });
+//   };
+//   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     e.preventDefault();
+//     if (e.target.files) {
+//       const files = Array.from(e.target.files);
+//       setImages((prev) => [...prev, files[0]]);
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (!isOpen) {
+//       setImages([]);
+//     }
+//   }, [isOpen]);
+//   return (
+//     <>
+//       <Button onPress={onOpen}>Create Product</Button>
+//       <Modal
+//         size="2xl"
+//         isOpen={isOpen}
+//         onOpenChange={onOpenChange}
+//         placement="top-center"
+//       >
+//         <ModalContent>
+//           {(onClose) => (
+//             <form onSubmit={handleSubmit(handleUpdateProduct)}>
+//               <ModalHeader className="flex flex-col gap-1">
+//                 Create Product
+//               </ModalHeader>
+//               <ModalBody>
+//                 <div className="flex items-center gap-5">
+//                   <Input
+//                     labelPlacement="outside"
+//                     {...register("name", { required: true })}
+//                     label="Name"
+//                     placeholder="Name"
+//                     variant="bordered"
+//                   />
+//                   <Input
+//                     labelPlacement="outside"
+//                     {...register("price", { required: true })}
+//                     label="Price"
+//                     placeholder="Price"
+//                     variant="bordered"
+//                   />
+//                 </div>
+//                 <div className="flex items-center gap-5">
+//                   <Input
+//                     labelPlacement="outside"
+//                     {...register("inventory", { required: true })}
+//                     label="Inventory"
+//                     placeholder="Inventory"
+//                     variant="bordered"
+//                   />
+//                   {categories?.data && (
+//                     <Select
+//                       labelPlacement="outside"
+//                       label="Product Category"
+//                       {...register("categoryId", { required: true })}
+//                       variant="bordered"
+//                       placeholder="Product Category"
+//                       className="max-w-full"
+//                       aria-label="Role"
+//                     >
+//                       {categories?.data?.map((category) => (
+//                         <SelectItem key={category.id}>
+//                           {category?.name}
+//                         </SelectItem>
+//                       ))}
+//                     </Select>
+//                   )}
+//                 </div>
+
+//                 <Input
+//                   {...register("description", { required: true })}
+//                   labelPlacement="outside"
+//                   label="Description"
+//                   placeholder="Description"
+//                   variant="bordered"
+//                 />
+
+//                 <div className="mt-4">
+//                   <label htmlFor="Image" className="text-xs">
+//                     Product Images
+//                   </label>
+//                   <input
+//                     type="file"
+//                     onChange={handleImageChange}
+//                     name="imageUrl"
+//                     id="upload"
+//                     className="hidden"
+//                     multiple
+//                   />
+//                   <div className="w-full flex items-center flex-wrap">
+//                     <label htmlFor="upload">
+//                       <AiOutlinePlusCircle
+//                         size={30}
+//                         className="mt-3 cursor-pointer"
+//                         color="#555"
+//                       />
+//                     </label>
+//                     {images &&
+//                       images?.map((img, i) => (
+//                         <Image
+//                           key={i}
+//                           height={120}
+//                           width={120}
+//                           src={URL.createObjectURL(img)}
+//                           alt="Image"
+//                           className="h-[120px] w-[120px] object-cover m-2"
+//                         />
+//                       ))}
+//                   </div>
+//                 </div>
+//               </ModalBody>
+//               <ModalFooter>
+//                 <Button color="danger" variant="flat" onPress={onClose}>
+//                   Cancel
+//                 </Button>
+//                 <Button type="submit" color="primary">
+//                   {isPending && !isSuccess ? (
+//                     <span className="flex items-center gap-2 justify-center text-base">
+//                       <span>Please Wait</span>{" "}
+//                       <TbFidgetSpinner className="animate-spin" />
+//                     </span>
+//                   ) : (
+//                     <span> Create Product</span>
+//                   )}
+//                 </Button>
+//               </ModalFooter>
+//             </form>
+//           )}
+//         </ModalContent>
+//       </Modal>
+//     </>
+//   );
+// }

@@ -39,6 +39,12 @@ const MenuDropdown = () => {
         >
           Flash Sale
         </Link>
+        <Link
+          href="/shops"
+          className="flex items-center relative w-full mt-[7px] text-[15px] pl-8 text-[#464545] hover:text-primary transition duration-200"
+        >
+          Shops
+        </Link>
       </div>
     </div>
   );

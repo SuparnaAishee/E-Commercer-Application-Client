@@ -6,6 +6,7 @@ export interface IChildren {
 }
 
 export interface IUser {
+  hasNotifications: any;
   id: string;
   name: string;
   email: string;
@@ -13,6 +14,9 @@ export interface IUser {
   profilePhoto?: string;
   iat: number;
   exp: number;
+  address:string;
+  description:string;
+  createdAt:string;
 }
 
 export type TError = {

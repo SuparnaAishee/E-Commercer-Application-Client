@@ -11,9 +11,9 @@ const layout = ({ children }: IChildren) => {
   return (
     <div className="relative flex flex-col h-screen">
       <main className="flex-grow">
-        <TopHeader />
-        <Header />
-        <BreadCrumbs />
+        {/* <TopHeader />
+        <Header /> */}
+        {/* <BreadCrumbs /> */}
         <div className="container grid grid-cols-12 gap-6 pb-14">
           <AdminSidebar />
           {children}

@@ -1,29 +1,39 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  IResponse,
 
-import { IResponse } from "../types";
-import { IWishlist } from "../types/wishlist";
-import { addToWishlist, getWishlist, removeFromWishlist } from "../services/Wishlist";
+  TQueryParam,
+} from "../types";
+import {
+  addToWishlist,
+  deleteWishlistProduct,
+  getMyWishlist,
+  updateWishlistProductQuantity,
+} from "../services/Wishlist";
+import { IUpdateWishlistProductQuantity, IWishlist } from "../types/wishlist";
 
-// Hook for adding a product to wishlist
 export const useAddToWishlist = () => {
-  return useMutation<IResponse<IWishlist>, Error, { productId: string }>({
+  return useMutation<any, Error, { quantity: number; productId: string }>({
     mutationKey: ["add-to-wishlist"],
     mutationFn: async (payload) => await addToWishlist(payload),
   });
 };
-
-// Hook for fetching user's wishlist
-export const useGetWishlist = () => {
-  return useQuery<IResponse<IWishlist[]>, Error>({
-    queryKey: ["get-wishlist"],
-    queryFn: async () => await getWishlist(),
+export const useGetMyWishlistProducts = (query: TQueryParam[]) => {
+  return useQuery<any, Error, IResponse<IWishlist[]>>({
+    queryKey: ["get-my-wishlist-product"],
+    queryFn: async () => await getMyWishlist(query),
   });
 };
 
-// Hook for removing a product from wishlist
-export const useRemoveFromWishlist = () => {
-  return useMutation<IResponse<null>, Error, string>({
-    mutationKey: ["remove-from-wishlist"],
-    mutationFn: async (productId) => await removeFromWishlist(productId),
+export const useDeleteWishlistProduct = () => {
+  return useMutation<any, Error, string>({
+    mutationKey: ["delete-wishlist"],
+    mutationFn: async (id) => await deleteWishlistProduct(id),
+  });
+};
+export const useUpdateWishlistProductQuantity = () => {
+  return useMutation<any, Error, IUpdateWishlistProductQuantity>({
+    mutationKey: ["update-wishlist-product"],
+    mutationFn: async (payload) => await updateWishlistProductQuantity(payload),
   });
 };

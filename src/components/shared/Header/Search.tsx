@@ -13,16 +13,19 @@ const Search = () => {
 
   return (
     <div className="relative hidden lg:block">
-      <div className="border-[2px] border-[#2b2d42] rounded-md w-[535px] xl:w-[675px] flex">
+      {/* Search Container */}
+      <div className="border-[2px] border-[#2b2d42] rounded-md w-[300px] xl:w-[400px] flex">
+        {/* Input Field */}
         <div className="h-auto flex-grow">
           <input
             onChange={(e) => setSearchTerm(e.target.value)}
             type="text"
             placeholder="Search product..."
-            className="px-5 py-2.5 border-none text-sm w-full focus:ring-0 focus:outline-none leading-relaxed"
+            className="px-3 py-2 border-none text-xs w-full focus:ring-0 focus:outline-none leading-relaxed"
             value={searchTerm}
           />
         </div>
+
         {/* Search Button with Custom SVG Icon */}
         <div className="w-[45px] flex items-center justify-center bg-secondary rounded-r-md">
           <button className="w-full px-4 py-2.5 text-white text-base font-medium">
@@ -60,7 +63,7 @@ const Search = () => {
                 onClick={() => setSearchTerm("")}
                 key={product?.id}
                 href={`/products/${product?.id}`}
-                className="flex items-center py-2 border-b border-[#ebebeb] hover:bg-[#f2f0f0] transition-all duration-300"
+                className="flex items-center py-2 border-b border-[#ebebeb] hover:bg-[#f2f0f0] transition-all duration-300 "
               >
                 <div className="w-[90px] p-2.5">
                   <Image

@@ -1,44 +1,78 @@
 "use client";
 
 import { useProduct } from "@/src/context/product.provider";
-import { ICategories } from "@/src/types";
+import type { ICategories } from "@/src/types";
 import Link from "next/link";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
 
 const CategoryCard = ({ category }: { category: ICategories }) => {
-  const { setQuery, setSelectedCategory } = useProduct();
+  const { setQuery, setSelectedCategory, selectedCategory } = useProduct();
+  const [isHovered, setIsHovered] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
+  const isSelected = selectedCategory === category?.name;
+
   const handleFilterByCategory = (category: ICategories) => {
     setQuery((prev) => {
       const prevQuery = prev.filter((p) => p.name !== "category");
       return [...prevQuery, { name: "category", value: category?.name }];
     });
     setSelectedCategory(category?.name);
+    setIsClicked(true);
+    setTimeout(() => setIsClicked(false), 150);
   };
+
   return (
-    <div className="col-span-1 overflow-hidden">
+    <motion.div
+      className="col-span-1 overflow-hidden rounded-lg"
+      whileHover={{ scale: 1.05 }}
+      transition={{ duration: 0.3 }}
+    >
       <Link
         onClick={() => handleFilterByCategory(category)}
         href="/products"
-        className="group h-[150px] sm:h-[250px] flex items-center justify-center relative bg-cover bg-no-repeat bg-center after:absolute after:inset-0 after:bg-[#00000060] after:content-['']"
-        style={{
-          backgroundImage: `url(${category.image})`,
-          backgroundSize: "contain",
-        }}
+        className={`
+          relative block h-[150px] sm:h-[200px] w-full
+          transition-all duration-300 ease-in-out
+          ${isSelected ? "ring-2 ring-primary ring-offset-2" : ""}
+        `}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="flex items-center relative z-10">
-          <h4 className="text-xl leading-6 text-white font-medium">
-            {category.name}
-          </h4>
-          <div className="text-white opacity-0 group-hover:opacity-100 group-hover:ml-2 transition-all duration-300">
-            <svg width="20" height="20" viewBox="0 0 24 24">
-              <path
-                fill="currentColor"
-                d="M13.3 17.275q-.3-.3-.288-.725q.013-.425.313-.725L16.15 13H5q-.425 0-.713-.288Q4 12.425 4 12t.287-.713Q4.575 11 5 11h11.15L13.3 8.15q-.3-.3-.3-.713q0-.412.3-.712t.713-.3q.412 0 .712.3L19.3 11.3q.15.15.213.325q.062.175.062.375t-.062.375q-.063.175-.213.325l-4.6 4.6q-.275.275-.687.275q-.413 0-.713-.3Z"
-              ></path>
-            </svg>
-          </div>
+        <motion.div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${category.image})` }}
+          animate={{ scale: isHovered ? 1.1 : 1 }}
+          transition={{ duration: 0.5 }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/30" />
+
+        <div className="absolute bottom-0 left-0 right-0 p-4 flex items-center justify-between">
+          <h4 className="text-xl font-medium text-white">{category.name}</h4>
+
+          <motion.div
+            className="text-white"
+            initial={{ x: -10, opacity: 0 }}
+            animate={{ x: isHovered ? 0 : -10, opacity: isHovered ? 1 : 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <ArrowRight className="h-5 w-5" />
+          </motion.div>
         </div>
+
+        {isSelected && (
+          <motion.div
+            className="absolute top-3 right-3 bg-primary text-white text-xs px-2 py-1 rounded-full"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.2 }}
+          >
+            Selected
+          </motion.div>
+        )}
       </Link>
-    </div>
+    </motion.div>
   );
 };
 
