@@ -11,9 +11,9 @@ const RecentProducts = () => {
   ]);
 
   return (
-    <div className="container pt-14">
+    <div className="container pt-14 pl-8 pr-8">
       <div className="flex items-start justify-between mb-[30px]">
-        <h2 className="text-[22px] sm:text-[32px] font-medium text-secondary">
+        <h2 className="text-[22px] sm:text-[32px] font-semibold text-secondary text-center">
           Recent Products
         </h2>
         <div className="pt-2">
