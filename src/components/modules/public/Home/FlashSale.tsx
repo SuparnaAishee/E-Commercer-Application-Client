@@ -6,7 +6,9 @@ import { useGetAllProducts } from "@/src/hooks/product";
 import { useCountdown } from "@/src/hooks/useCountdown";
 
 const FlashSale = () => {
-  const { data: products } = useGetAllProducts([]);
+  const { data: products } = useGetAllProducts([
+    { name: "limit", value: 200 },
+  ]);
   const timeLeft = useCountdown({ hours: 5, minutes: 30, seconds: 0 });
 
   const flashSaleProducts = products?.data
