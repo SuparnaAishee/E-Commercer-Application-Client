@@ -3,7 +3,6 @@ import { IReview } from "./review";
 import { IShop } from "./shop";
 
 export interface IProduct {
-  relatedProducts: any;
   id: string;
   name: string;
   description: string;
@@ -16,9 +15,10 @@ export interface IProduct {
   updatedAt: string;
   category: ICategories;
   shop: IShop;
-  reviews: IReview[];
+  reviews?: IReview[];
   isFlashSale: boolean;
   discount_percentage: number;
-  sale_start_time: string;
-  sale_end_time: string;
+  sale_start_time?: string;
+  sale_end_time?: string;
+  relatedProducts?: IProduct[];
 }

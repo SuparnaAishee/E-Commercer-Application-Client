@@ -6,7 +6,7 @@ export interface IChildren {
 }
 
 export interface IUser {
-  hasNotifications: any;
+  hasNotifications?: boolean;
   id: string;
   name: string;
   email: string;
@@ -14,9 +14,9 @@ export interface IUser {
   profilePhoto?: string;
   iat: number;
   exp: number;
-  address:string;
-  description:string;
-  createdAt:string;
+  address?: string;
+  description?: string;
+  createdAt?: string;
 }
 
 export type TError = {
@@ -59,7 +59,11 @@ export interface IResponse<T> {
   success: boolean;
   message: string;
   data?: T;
-  error: any;
+  error?: {
+    message?: string;
+    errorSources?: { path: string; message: string }[];
+    stack?: string;
+  };
   meta?: {
     total: number;
     page: number;

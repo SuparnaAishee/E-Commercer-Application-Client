@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-/* eslint-disable unused-imports/no-unused-imports */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -18,7 +16,7 @@ const FlashSale = () => {
     seconds: 0,
   });
 
-  // 🔥 Filter flash sale products
+  // ðŸ”¥ Filter flash sale products
   useEffect(() => {
     if (allProducts?.data) {
       console.log("All products:", allProducts.data);
@@ -35,7 +33,7 @@ const FlashSale = () => {
     }
   }, [allProducts]);
 
-  // ⏳ Countdown Timer Logic using `sale_end_time`
+  // â³ Countdown Timer Logic using `sale_end_time`
   useEffect(() => {
     if (!flashSaleProducts.length) return;
 

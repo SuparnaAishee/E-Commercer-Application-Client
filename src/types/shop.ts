@@ -4,7 +4,6 @@ import { IOrder } from "./order";
 import { IProduct } from "./product";
 
 export interface IShop {
-  icon: string;
   id: string;
   shopName: string;
   shopLogo?: string;
@@ -14,9 +13,9 @@ export interface IShop {
   status: "ACTIVE" | "BLOCKED";
   createdAt: string;
   updatedAt: string;
-  products: IProduct[];
-  orders: IOrder[];
-  follower: IFollowShop[];
+  products?: IProduct[];
+  orders?: IOrder[];
+  follower?: IFollowShop[];
 }
 
 export interface IUpdateShopStatus {

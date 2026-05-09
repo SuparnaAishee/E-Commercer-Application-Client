@@ -46,8 +46,8 @@ export default function DashboardPage() {
   const [revenueGrowth, setRevenueGrowth] = useState(0);
   const [productGrowth, setProductGrowth] = useState(0);
   const [orderGrowth, setOrderGrowth] = useState(0);
-  const [salesData, setSalesData] = useState([]);
-  const [categoryData, setCategoryData] = useState([]);
+  const [salesData, setSalesData] = useState<{ name: string; sales: number }[]>([]);
+  const [categoryData, setCategoryData] = useState<{ name: string; value: number }[]>([]);
   interface Order {
     id: string;
     productId: string;
@@ -113,57 +113,43 @@ export default function DashboardPage() {
 
       // Generate sales data for the last 6 months
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-      const mockSalesData = months.map((month, index) => {
-        // Generate random sales data between 2000 and 6000
+      const mockSalesData = months.map((month) => {
         const sales = Math.floor(Math.random() * 4000) + 2000;
         return { name: month, sales };
       });
-      //@ts-ignore
       setSalesData(mockSalesData);
 
       // Generate category data
-      const categories = {};
+      const categories: Record<string, number> = {};
       productsData.data.forEach((product) => {
         const categoryName = product.category.name;
-        //@ts-ignore
-        if (categories[categoryName]) {
-          //@ts-ignore
-          categories[categoryName]++;
-        } else {
-          //@ts-ignore
-          categories[categoryName] = 1;
-        }
+        categories[categoryName] = (categories[categoryName] ?? 0) + 1;
       });
 
       const categoryChartData = Object.keys(categories).map((name) => ({
         name,
-        //@ts-ignore
         value: categories[name],
       }));
-      //@ts-ignore
       setCategoryData(categoryChartData);
 
       // Set recent orders
-      const recent = ordersData.data
-        //@ts-ignore
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      const recent = [...ordersData.data]
+        .sort(
+          (a: Order, b: Order) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        )
         .slice(0, 5);
-      //@ts-ignore
-      setRecentOrders(recent);
+      setRecentOrders(recent as Order[]);
 
       // Set top products (based on order quantity)
-      const productSales = {};
+      const productSales: Record<string, Product> = {};
       ordersData.data.forEach((order) => {
         const productId = order.product.id;
-        //@ts-ignore
         if (productSales[productId]) {
-          //@ts-ignore
           productSales[productId].quantity += order.quantity;
-          //@ts-ignore
           productSales[productId].revenue +=
             order.quantity * order.product.price;
         } else {
-          //@ts-ignore
           productSales[productId] = {
             id: productId,
             name: order.product.name,
@@ -176,10 +162,8 @@ export default function DashboardPage() {
       });
 
       const topProductsList = Object.values(productSales)
-        //@ts-ignore
         .sort((a, b) => b.quantity - a.quantity)
         .slice(0, 5);
-      //@ts-ignore
       setTopProducts(topProductsList);
     }
   }, [shopData, productsData, ordersData]);
@@ -195,9 +179,8 @@ export default function DashboardPage() {
       </div>
     );
   }
-  //@ts-ignore
-  const renderOrderCell = (order, columnKey) => {
-    const cellValue = order[columnKey];
+  const renderOrderCell = (order: Order, columnKey: React.Key) => {
+    const cellValue = order[columnKey as keyof Order];
 
     switch (columnKey) {
       case "product":
@@ -509,11 +492,9 @@ export default function DashboardPage() {
               <TableColumn>DATE</TableColumn>
             </TableHeader>
             <TableBody items={recentOrders}>
-              {(order) => (
-                //@ts-ignore
+              {(order: Order) => (
                 <TableRow key={order.id}>
                   <TableCell>{renderOrderCell(order, "product")}</TableCell>
-                  
                   <TableCell>{order.quantity}</TableCell>
                   <TableCell>{renderOrderCell(order, "isPaid")}</TableCell>
                   <TableCell>{renderOrderCell(order, "status")}</TableCell>
