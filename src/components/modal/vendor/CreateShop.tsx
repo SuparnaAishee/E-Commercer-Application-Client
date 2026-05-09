@@ -85,9 +85,9 @@ export default function CreateShop() {
         classNames={{
           body: "py-6",
           backdrop: "bg-[#292f46]/50 backdrop-opacity-40",
-          base: "border-[#292f46] bg-white dark:bg-[#19172c] dark:border-white/20",
-          header: "border-b-[1px] border-[#292f46] dark:border-white/20",
-          footer: "border-t-[1px] border-[#292f46] dark:border-white/20",
+          base: "border-[#292f46] bg-white",
+          header: "border-b-[1px] border-[#292f46]",
+          footer: "border-t-[1px] border-[#292f46]",
           closeButton: "hover:bg-white/5 active:bg-white/10",
         }}
       >

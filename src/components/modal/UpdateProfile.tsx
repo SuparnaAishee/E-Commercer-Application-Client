@@ -211,20 +211,20 @@ export default function UpdateProfile() {
         placement="top-center"
         backdrop="blur"
         classNames={{
-          base: "bg-white dark:bg-gray-900 rounded-lg shadow-lg",
-          header: "border-b border-gray-200 dark:border-gray-700",
+          base: "bg-white rounded-lg shadow-lg",
+          header: "border-b border-gray-200",
           body: "py-6",
-          footer: "border-t border-gray-200 dark:border-gray-700",
+          footer: "border-t border-gray-200",
         }}
       >
         <ModalContent>
           {(onClose) => (
             <form onSubmit={handleSubmit(handleUpdateProfile)}>
               <ModalHeader className="flex flex-col gap-1">
-                <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+                <h3 className="text-xl font-semibold text-gray-800">
                   Update Profile
                 </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-gray-500">
                   Change your profile information
                 </p>
               </ModalHeader>
@@ -272,7 +272,7 @@ export default function UpdateProfile() {
                   <div className="space-y-2">
                     <label
                       htmlFor="image"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-gray-700"
                     >
                       Profile Photo
                     </label>
@@ -288,8 +288,8 @@ export default function UpdateProfile() {
                     <div
                       className={`relative border-2 border-dashed rounded-lg p-4 transition-all ${
                         isDragging
-                          ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20"
-                          : "border-gray-300 dark:border-gray-700 hover:border-orange-400"
+                          ? "border-orange-500 bg-orange-50"
+                          : "border-gray-300 hover:border-orange-400"
                       }`}
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
@@ -329,13 +329,13 @@ export default function UpdateProfile() {
                           className="flex flex-col items-center justify-center py-6 cursor-pointer"
                         >
                           <Upload className="h-10 w-10 text-gray-400 mb-2" />
-                          <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+                          <p className="text-sm text-gray-600 text-center">
                             <span className="font-medium text-orange-500">
                               Click to upload
                             </span>{" "}
                             or drag and drop
                           </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                          <p className="text-xs text-gray-500 mt-1">
                             PNG, JPG, GIF or WebP (max. 5MB)
                           </p>
                           {user?.profilePhoto && !previewUrl && (
