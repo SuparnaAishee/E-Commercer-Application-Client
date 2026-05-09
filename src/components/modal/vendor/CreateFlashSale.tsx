@@ -340,8 +340,6 @@ export default function CreateFlashSale() {
                       <DatePicker
                         onChange={(value) => setSaleStartTime(value)}
                         variant="bordered"
-                        //@ts-ignore
-                        placeholder="Select start date"
                         startContent={
                           <TbCalendarTime className="text-default-400" />
                         }
@@ -366,8 +364,6 @@ export default function CreateFlashSale() {
                       <DatePicker
                         onChange={(value) => setSaleEndTime(value)}
                         variant="bordered"
-                        //@ts-ignore
-                        placeholder="Select end date"
                         startContent={
                           <TbCalendarTime className="text-default-400" />
                         }

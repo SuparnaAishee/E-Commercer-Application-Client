@@ -64,26 +64,11 @@ const AdminHomePage = () => {
     return showFullDescription ? text : `${text.slice(0, limit)}...`;
   };
 
-  // Mock stats for the activity section
+  // TODO: replace with real counts once GET /api/v1/users/me/stats lands
   const adminStats = [
-    {
-      label: "Products",
-      //@ts-ignore
-      value: user?.productCount || 42,
-      icon: <Activity size={18} />,
-    },
-    {
-      label: "Orders",
-      //@ts-ignore
-      value: user?.orderCount || 156,
-      icon: <Award size={18} />,
-    },
-    {
-      label: "Customers",
-      //@ts-ignore
-      value: user?.customerCount || 89,
-      icon: <Star size={18} />,
-    },
+    { label: "Products", value: 42, icon: <Activity size={18} /> },
+    { label: "Orders", value: 156, icon: <Award size={18} /> },
+    { label: "Customers", value: 89, icon: <Star size={18} /> },
   ];
 
   return (

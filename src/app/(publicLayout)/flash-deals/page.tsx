@@ -5,10 +5,11 @@ import { useGetAllProducts } from "@/src/hooks/product";
 import ProductCart from "@/src/components/UI/ProductCart/ProductCart";
 import { motion } from "framer-motion";
 import { RefreshCw, Clock } from "lucide-react";
+import type { IProduct } from "@/src/types";
 
 const FlashSale = () => {
   const { data: allProducts, isLoading } = useGetAllProducts([]);
-  const [flashSaleProducts, setFlashSaleProducts] = useState([]);
+  const [flashSaleProducts, setFlashSaleProducts] = useState<IProduct[]>([]);
   const [timeRemaining, setTimeRemaining] = useState({
     days: 0,
     hours: 0,
@@ -16,40 +17,29 @@ const FlashSale = () => {
     seconds: 0,
   });
 
-  // ðŸ”¥ Filter flash sale products
+  // Filter flash sale products
   useEffect(() => {
     if (allProducts?.data) {
-      console.log("All products:", allProducts.data);
-
       const flashProducts = allProducts.data.filter(
-        (product) =>
-          //@ts-ignore
-          product.isFlashSale === true || product.isFlashSale === "true"
+        (product) => product.isFlashSale === true,
       );
-
-      console.log("Filtered Flash Sale Products:", flashProducts);
-      //@ts-ignore
       setFlashSaleProducts(flashProducts);
     }
   }, [allProducts]);
 
-  // â³ Countdown Timer Logic using `sale_end_time`
+  // Countdown timer driven by sale_end_time
   useEffect(() => {
     if (!flashSaleProducts.length) return;
 
     const endDates = flashSaleProducts
-      //@ts-ignore
-    .filter((product) => product.sale_end_time) // Ensure field exists
-      //@ts-ignore
-      .map((product) => new Date(product.sale_end_time));
+      .filter((product): product is IProduct & { sale_end_time: string } =>
+        Boolean(product.sale_end_time),
+      )
+      .map((product) => new Date(product.sale_end_time).getTime());
 
-    if (endDates.length === 0) {
-      console.warn("No valid flash sale end times found.");
-      return;
-    }
-//@ts-ignore
+    if (endDates.length === 0) return;
+
     const earliestEndDate = new Date(Math.min(...endDates));
-    console.log("Earliest Flash Sale End Time:", earliestEndDate);
 
     const timer = setInterval(() => {
       const now = new Date();
@@ -63,12 +53,13 @@ const FlashSale = () => {
 
       const days = Math.floor(difference / (1000 * 60 * 60 * 24));
       const hours = Math.floor(
-        (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
       );
-      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const minutes = Math.floor(
+        (difference % (1000 * 60 * 60)) / (1000 * 60),
+      );
       const seconds = Math.floor((difference % (1000 * 60)) / 1000);
 
-      console.log(`Countdown: ${days}d ${hours}h ${minutes}m ${seconds}s`);
       setTimeRemaining({ days, hours, minutes, seconds });
     }, 1000);
 
@@ -76,51 +67,71 @@ const FlashSale = () => {
   }, [flashSaleProducts]);
 
   return (
-    <section className="flex flex-col items-center justify-center gap-4 pt-14">
-      <div className="container pb-14 pl-12 pr-12">
-        <div className="flex flex-col md:flex-row items-center justify-between mb-[30px]">
-          <h2 className="text-[22px] sm:text-[32px] font-medium mb-4 md:mb-0">
-            Flash Sale
-          </h2>
+    <section className="bg-gradient-to-br from-orange-50 to-amber-50 py-16 px-4 md:px-8 lg:px-16">
+      <div className="container mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-10"
+        >
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
+            Flash Deals
+          </h1>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Limited-time offers on our top products. Grab them before they
+            disappear.
+          </p>
+        </motion.div>
 
-          {/* Countdown Timer */}
-          {timeRemaining.days > 0 ||
-          timeRemaining.hours > 0 ||
-          timeRemaining.minutes > 0 ||
-          timeRemaining.seconds > 0 ? (
-            <div className="flex items-center gap-2 bg-red-50 p-3 rounded-lg">
-              <Clock className="text-red-500" size={20} />
-              <div className="flex gap-2">
-                <div className="bg-red-500 text-white px-2 py-1 rounded">
-                  {timeRemaining.days.toString().padStart(2, "0")}d
-                </div>
-                <div className="bg-red-500 text-white px-2 py-1 rounded">
-                  {timeRemaining.hours.toString().padStart(2, "0")}h
-                </div>
-                <div className="bg-red-500 text-white px-2 py-1 rounded">
-                  {timeRemaining.minutes.toString().padStart(2, "0")}m
-                </div>
-                <div className="bg-red-500 text-white px-2 py-1 rounded">
-                  {timeRemaining.seconds.toString().padStart(2, "0")}s
-                </div>
-              </div>
+        {flashSaleProducts.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 mb-10 max-w-3xl mx-auto"
+          >
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <Clock className="text-red-500" size={22} />
+              <h3 className="text-xl font-semibold text-gray-800">
+                Sale ends in
+              </h3>
             </div>
-          ) : null}
-        </div>
+            <div className="flex items-center justify-center gap-3">
+              {[
+                { label: "Days", value: timeRemaining.days },
+                { label: "Hours", value: timeRemaining.hours },
+                { label: "Minutes", value: timeRemaining.minutes },
+                { label: "Seconds", value: timeRemaining.seconds },
+              ].map((unit) => (
+                <div
+                  key={unit.label}
+                  className="bg-red-500 text-white rounded-lg px-4 py-3 min-w-[64px] text-center"
+                >
+                  <div className="text-2xl font-bold">
+                    {String(unit.value).padStart(2, "0")}
+                  </div>
+                  <div className="text-xs uppercase tracking-wide opacity-80">
+                    {unit.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
-        {/* Product Display */}
         {isLoading ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
+            {[...Array(8)].map((_, i) => (
               <div
                 key={i}
-                className="bg-white rounded-xl shadow-sm overflow-hidden"
+                className="bg-white rounded-xl overflow-hidden shadow-sm"
               >
-                <div className="aspect-square bg-gray-200 animate-pulse"></div>
+                <div className="h-48 bg-gray-200 animate-pulse" />
                 <div className="p-4 space-y-3">
-                  <div className="h-4 bg-gray-200 animate-pulse rounded-md"></div>
-                  <div className="h-6 bg-gray-200 animate-pulse rounded-md w-1/2"></div>
-                  <div className="h-10 bg-gray-200 animate-pulse rounded-md"></div>
+                  <div className="h-4 bg-gray-200 animate-pulse rounded-md" />
+                  <div className="h-6 bg-gray-200 animate-pulse rounded-md w-1/2" />
+                  <div className="h-10 bg-gray-200 animate-pulse rounded-md" />
                 </div>
               </div>
             ))}
@@ -128,16 +139,16 @@ const FlashSale = () => {
         ) : flashSaleProducts.length > 0 ? (
           <motion.div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {flashSaleProducts.map((product) => (
-              //@ts-ignore
               <ProductCart key={product.id} product={product} />
             ))}
           </motion.div>
         ) : (
           <div className="w-full flex flex-col items-center justify-center py-12 bg-white rounded-xl shadow-sm">
+            <RefreshCw className="text-gray-400 mb-3" size={32} />
             <h3 className="text-xl font-semibold text-gray-800 mb-2">
-              No flash sale products available!
+              No flash sale products available
             </h3>
-            <p className="text-gray-600 mb-6">Check back later for deals.</p>
+            <p className="text-gray-600">Check back later for deals.</p>
           </div>
         )}
       </div>

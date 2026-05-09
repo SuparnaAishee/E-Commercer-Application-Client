@@ -67,26 +67,11 @@ const VendorHomePage = () => {
     return showFullDescription ? text : `${text.slice(0, limit)}...`;
   };
 
-  // Mock stats for the vendor dashboard
+  // TODO: replace with real counts once GET /api/v1/vendor/stats lands
   const vendorStats = [
-    {
-      label: "Products",
-      //@ts-ignore
-      value: user?.productCount || 24,
-      icon: <Package size={18} />,
-    },
-    {
-      label: "Sales",
-      //@ts-ignore
-      value: user?.salesCount || "$4,320",
-      icon: <DollarSign size={18} />,
-    },
-    {
-      label: "Orders",
-      //@ts-ignore
-      value: user?.orderCount || 78,
-      icon: <ShoppingBag size={18} />,
-    },
+    { label: "Products", value: 24, icon: <Package size={18} /> },
+    { label: "Sales", value: "$4,320", icon: <DollarSign size={18} /> },
+    { label: "Orders", value: 78, icon: <ShoppingBag size={18} /> },
   ];
 
   return (
@@ -278,8 +263,7 @@ const VendorHomePage = () => {
                           <input
                             type="tel"
                             className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            //@ts-ignore
-                            defaultValue={user?.phone || ""}
+                                                        defaultValue=""
                             placeholder="Business phone number"
                           />
                           <input
@@ -291,8 +275,7 @@ const VendorHomePage = () => {
                           <input
                             type="url"
                             className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            //@ts-ignore
-                            defaultValue={user?.website || ""}
+                                                        defaultValue=""
                             placeholder="Website URL"
                           />
                         </div>
@@ -331,8 +314,7 @@ const VendorHomePage = () => {
                             type="text"
                             className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                             defaultValue={
-                              //@ts-ignore
-                              user?.address?.street || "789 Commerce Avenue"
+                                                            "789 Commerce Avenue"
                             }
                             placeholder="Street address"
                           />
@@ -341,8 +323,7 @@ const VendorHomePage = () => {
                               type="text"
                               className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                               defaultValue={
-                                //@ts-ignore
-                                user?.address?.city || "Market City"
+                                                                "Market City"
                               }
                               placeholder="City"
                             />
@@ -350,8 +331,7 @@ const VendorHomePage = () => {
                               type="text"
                               className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                               defaultValue={
-                                //@ts-ignore
-                                user?.address?.state || "Vendorland"
+                                                                "Vendorland"
                               }
                               placeholder="State"
                             />
@@ -360,16 +340,14 @@ const VendorHomePage = () => {
                             <input
                               type="text"
                               className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                              //@ts-ignore
-                              defaultValue={user?.address?.zipCode || "12345"}
+                                                            defaultValue="12345"
                               placeholder="Zip code"
                             />
                             <input
                               type="text"
                               className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                               defaultValue={
-                                //@ts-ignore
-                                user?.address?.country || "United States"
+                                                                "United States"
                               }
                               placeholder="Country"
                             />

@@ -1,10 +1,15 @@
 "use server";
 
 import { AxiosSecure } from "@/src/lib/AxiosSecure";
-import { IChangePassword } from "@/src/types";
+import { IChangePassword, IUser } from "@/src/types";
 import { jwtDecode } from "jwt-decode";
 import { cookies } from "next/headers";
 import { FieldValues } from "react-hook-form";
+
+type AccessTokenPayload = Pick<
+  IUser,
+  "id" | "name" | "email" | "role" | "iat" | "exp" | "profilePhoto"
+>;
 
 export const registerUser = async (payload: FieldValues) => {
   try {
@@ -52,22 +57,20 @@ export const forgotPassword = async (payload: { email: string }) => {
   }
 };
 
-export const getCurrentUser = async () => {
+export const getCurrentUser = async (): Promise<AccessTokenPayload | null> => {
   const accessToken = cookies().get("accessToken")?.value;
-  let decode = null;
-  if (accessToken) {
-    decode = await jwtDecode(accessToken);
-    return {
-      id: decode?.id,
-      name: decode?.name,
-      email: decode?.email,
-      role: decode?.role,
-      iat: decode?.iat,
-      exp: decode?.exp,
-      profilePhoto: decode?.profilePhoto,
-    };
-  }
-  return decode;
+  if (!accessToken) return null;
+
+  const decode = jwtDecode<AccessTokenPayload>(accessToken);
+  return {
+    id: decode.id,
+    name: decode.name,
+    email: decode.email,
+    role: decode.role,
+    iat: decode.iat,
+    exp: decode.exp,
+    profilePhoto: decode.profilePhoto,
+  };
 };
 
 export const getNewAccessToken = async () => {

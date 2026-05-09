@@ -77,7 +77,7 @@ const ManageCoupon = () => {
   );
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const searchTimeout = React.useRef(null);
+  const searchTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const {
     data,
@@ -136,22 +136,17 @@ const ManageCoupon = () => {
     await refetchCoupon();
     setIsRefreshing(false);
   };
-  //@ts-ignore
-  const handleSearch = (e) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    // Reset to first page when searching
     if (page !== 1) setPage(1);
 
-    // Debounced search - only trigger after typing stops
-    //@ts-ignore
-    clearTimeout(searchTimeout.current);
-    //@ts-ignore
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
     searchTimeout.current = setTimeout(() => {
       refetchCoupon();
     }, 500);
   };
-  //@ts-ignore
-  const formatDate = (dateString) => {
+
+  const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       year: "numeric",
@@ -269,7 +264,7 @@ const ManageCoupon = () => {
                     onAction={(key) => {
                       if (key === "active") {
                         refetchCoupon({
-                          //@ts-ignore
+                          // @ts-expect-error TODO refactor: react-query refetch() does not accept a new queryKey/queryParams; lift filter params to component state
                           queryParams: [
                             { name: "limit", value: limit },
                             { name: "page", value: 1 },
@@ -278,7 +273,7 @@ const ManageCoupon = () => {
                         });
                       } else if (key === "expired") {
                         refetchCoupon({
-                          //@ts-ignore
+                          // @ts-expect-error TODO refactor: react-query refetch() does not accept a new queryKey/queryParams; lift filter params to component state
                           queryParams: [
                             { name: "limit", value: limit },
                             { name: "page", value: 1 },
@@ -287,7 +282,7 @@ const ManageCoupon = () => {
                         });
                       } else if (key === "percentage") {
                         refetchCoupon({
-                          //@ts-ignore
+                          // @ts-expect-error TODO refactor: react-query refetch() does not accept a new queryKey/queryParams; lift filter params to component state
                           queryParams: [
                             { name: "limit", value: limit },
                             { name: "page", value: 1 },
@@ -296,7 +291,7 @@ const ManageCoupon = () => {
                         });
                       } else if (key === "fixed") {
                         refetchCoupon({
-                          //@ts-ignore
+                          // @ts-expect-error TODO refactor: react-query refetch() does not accept a new queryKey/queryParams; lift filter params to component state
                           queryParams: [
                             { name: "limit", value: limit },
                             { name: "page", value: 1 },
@@ -305,7 +300,7 @@ const ManageCoupon = () => {
                         });
                       } else {
                         refetchCoupon({
-                          //@ts-ignore
+                          // @ts-expect-error TODO refactor: react-query refetch() does not accept a new queryKey/queryParams; lift filter params to component state
                           queryParams: [
                             { name: "limit", value: limit },
                             { name: "page", value: 1 },
@@ -333,8 +328,7 @@ const ManageCoupon = () => {
               <Table
                 aria-label="Coupons table"
                 bottomContent={
-                  //@ts-ignore
-                  !isLoading && meta?.total > limit ? (
+                  !isLoading && (meta?.total ?? 0) > limit ? (
                     <div className="flex justify-center py-2">
                       <Pagination
                         showControls

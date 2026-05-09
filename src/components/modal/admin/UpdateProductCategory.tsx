@@ -359,8 +359,6 @@ export default function UpdateProductCategory({
                       }
                       isInvalid={!!errors.name}
                       errorMessage={errors.name?.message?.toString()}
-                      //@ts-ignore
-                      isLoading={isCategoryLoading}
                       classNames={{
                         label: "text-sm font-medium text-default-700",
                         input: "text-sm",

@@ -171,7 +171,6 @@ const ProductCart = ({ product }: { product: IProduct }) => {
   const handleAddToWishlist = async (product: IProduct) => {
     if (user?.email) {
       try {
-        //@ts-ignore
         addToWishlist({ productId: product.id });
         toast.success("Product added to wishlist!");
       } catch {

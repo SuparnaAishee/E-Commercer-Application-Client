@@ -60,7 +60,7 @@ const ManageOrder = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const searchTimeout = React.useRef(null);
+  const searchTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const {
     data,
@@ -118,29 +118,25 @@ const ManageOrder = () => {
     await refetchAllOrder();
     setIsRefreshing(false);
   };
-//@ts-ignore
-  const handleSearch = (e) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
     // Reset to first page when searching
     if (page !== 1) setPage(1);
 
     // Debounced search - only trigger after typing stops
-    //@ts-ignore
-    clearTimeout(searchTimeout.current);
-    //@ts-ignore
-    searchTimeout.current = setTimeout(() => {
+        if (searchTimeout.current) clearTimeout(searchTimeout.current);
+        searchTimeout.current = setTimeout(() => {
       refetchAllOrder();
     }, 500);
   };
-//@ts-ignore
-  const handleFilterChange = (key) => {
+  const handleFilterChange = (key: React.Key) => {
     setStatusFilter(key);
     // Reset to first page when filtering
     if (page !== 1) setPage(1);
 
     if (key === "all") {
       refetchAllOrder({
-        //@ts-ignore
+                // @ts-expect-error TODO refactor: react-query refetch() does not accept a new queryKey/queryParams; lift filter params to component state
         queryParams: [
           { name: "limit", value: limit },
           { name: "page", value: 1 },
@@ -148,7 +144,7 @@ const ManageOrder = () => {
       });
     } else {
       refetchAllOrder({
-        //@ts-ignore
+                // @ts-expect-error TODO refactor: react-query refetch() does not accept a new queryKey/queryParams; lift filter params to component state
         queryParams: [
           { name: "limit", value: limit },
           { name: "page", value: 1 },
@@ -157,8 +153,7 @@ const ManageOrder = () => {
       });
     }
   };
-//@ts-ignore
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "COMPLETED":
         return "success";
@@ -348,8 +343,7 @@ const ManageOrder = () => {
             <Table
               aria-label="Orders table"
               bottomContent={
-                //@ts-ignore
-                !isLoading && meta?.total > limit ? (
+                                !isLoading && (meta?.total ?? 0) > limit ? (
                   <div className="flex justify-center py-2">
                     <Pagination
                       showControls

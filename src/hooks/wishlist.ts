@@ -13,7 +13,7 @@ import {
 import { IUpdateWishlistProductQuantity, IWishlist } from "../types/wishlist";
 
 export const useAddToWishlist = () => {
-  return useMutation<any, Error, { quantity: number; productId: string }>({
+  return useMutation<any, Error, { productId: string }>({
     mutationKey: ["add-to-wishlist"],
     mutationFn: async (payload) => await addToWishlist(payload),
   });

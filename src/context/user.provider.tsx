@@ -92,9 +92,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<IUser | null>(null);
 
   const handleUser = async () => {
-    const user = await getCurrentUser();
-    //@ts-ignore
-    setUser(user);
+    const fetched = await getCurrentUser();
+    setUser(fetched as IUser | null);
     setIsUserLoading(false);
   };
 

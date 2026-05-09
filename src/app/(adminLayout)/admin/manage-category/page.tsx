@@ -62,7 +62,7 @@ const ManageProductCategory = () => {
   );
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const searchTimeout = React.useRef(null);
+  const searchTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const {
     data,
@@ -116,17 +116,14 @@ const ManageProductCategory = () => {
     await refetchCategory();
     setIsRefreshing(false);
   };
-  //@ts-ignore
-  const handleSearch = (e) => {
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
     // Reset to first page when searching
     if (page !== 1) setPage(1);
 
     // Debounced search - only trigger after typing stops
-    //@ts-ignore
-    clearTimeout(searchTimeout.current);
-    //@ts-ignore
-    searchTimeout.current = setTimeout(() => {
+        if (searchTimeout.current) clearTimeout(searchTimeout.current);
+        searchTimeout.current = setTimeout(() => {
       refetchCategory();
     }, 500);
   };
@@ -218,7 +215,7 @@ const ManageProductCategory = () => {
                     onAction={(key) => {
                       if (key === "recent") {
                         refetchCategory({
-                          //@ts-ignore
+                                                    // @ts-expect-error TODO refactor: react-query refetch() does not accept a new queryKey/queryParams; lift filter params to component state
                           queryParams: [
                             { name: "limit", value: limit },
                             { name: "page", value: 1 },
@@ -227,7 +224,7 @@ const ManageProductCategory = () => {
                         });
                       } else if (key === "alphabetical") {
                         refetchCategory({
-                          //@ts-ignore
+                                                    // @ts-expect-error TODO refactor: react-query refetch() does not accept a new queryKey/queryParams; lift filter params to component state
                           queryParams: [
                             { name: "limit", value: limit },
                             { name: "page", value: 1 },
@@ -236,7 +233,7 @@ const ManageProductCategory = () => {
                         });
                       } else {
                         refetchCategory({
-                          //@ts-ignore
+                                                    // @ts-expect-error TODO refactor: react-query refetch() does not accept a new queryKey/queryParams; lift filter params to component state
                           queryParams: [
                             { name: "limit", value: limit },
                             { name: "page", value: 1 },
@@ -259,8 +256,7 @@ const ManageProductCategory = () => {
             <Table
               aria-label="Categories table"
               bottomContent={
-                //@ts-ignore
-                !isLoading && meta?.total > limit ? (
+                                !isLoading && (meta?.total ?? 0) > limit ? (
                   <div className="flex justify-center py-2">
                     <Pagination
                       showControls

@@ -65,26 +65,11 @@ const UserHomePage = () => {
     return showFullDescription ? text : `${text.slice(0, limit)}...`;
   };
 
-  // Mock stats for the activity section
+  // TODO: replace with real counts once GET /api/v1/users/me/stats lands
   const userStats = [
-    {
-      label: "Orders",
-      //@ts-ignore
-      value: user?.orderCount || 0,
-      icon: <Activity size={18} />,
-    },
-    {
-      label: "Wishlist",
-      //@ts-ignore
-      value: user?.wishlistCount || 0,
-      icon: <Award size={18} />,
-    },
-    {
-      label: "Reviews",
-      //@ts-ignore
-      value: user?.reviewCount || 0,
-      icon: <Star size={18} />,
-    },
+    { label: "Orders", value: 0, icon: <Activity size={18} /> },
+    { label: "Wishlist", value: 0, icon: <Award size={18} /> },
+    { label: "Reviews", value: 0, icon: <Star size={18} /> },
   ];
 
   return (
