@@ -7,12 +7,7 @@ import type { IProduct } from "@/src/types";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { CiHeart } from "react-icons/ci";
-import {
-  IoEyeOutline,
-  IoCartOutline,
-  IoGitCompareOutline,
-} from "react-icons/io5";
+import { Heart, Eye, GitCompareArrows, ShoppingCart, Star } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useCreateCompare, useGetMyComparison } from "@/src/hooks/compare";
@@ -29,277 +24,258 @@ const ProductCart = ({ product }: { product: IProduct }) => {
   const { mutate: addToWishlist } = useAddToWishlist();
   const [isHovered, setIsHovered] = useState(false);
 
+  const promptLogin = (text: string) =>
+    Swal.fire({
+      title: "Please login",
+      text,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#f97316",
+      cancelButtonColor: "#9ca3af",
+      confirmButtonText: "Login",
+    }).then((result) => {
+      if (result.isConfirmed) router.push("/login");
+    });
+
   const handleAddToCart = (product: IProduct & { type?: "replaceProduct" }) => {
-    if (user?.email) {
-      const isDifferentShop = cartProduct?.data?.find(
-        (cart) => cart.product?.shopId !== product?.shopId
-      );
+    if (!user?.email) {
+      promptLogin("Please login to add product in cart!");
+      return;
+    }
 
-      if (isDifferentShop) {
-        Swal.fire({
-          title: "Detect Different Shop",
-          text: "Adding multiple shop products is not allowed! Replace the cart with the new product!",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#3085d6",
-          cancelButtonColor: "#d33",
-          confirmButtonText: "Yes, Replace",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            addToCart(
-              { productId: product.id, quantity: 1, type: "replaceProduct" },
-              {
-                onSuccess(data) {
-                  if (data?.success) {
-                    refetchCart();
-                    toast.success(data?.message);
-                  } else {
-                    toast.error(data?.message);
-                  }
-                },
-                onError() {
-                  toast.error("Failed to add product to cart!");
-                },
-              }
-            );
-          }
-        });
-      } else {
-        addToCart(
-          { productId: product.id, quantity: 1 },
-          {
-            onSuccess(data) {
-              if (data?.success) {
-                refetchCart();
-                toast.success(data?.message);
-              } else {
-                toast.error(data?.message);
-              }
-            },
-            onError() {
-              toast.error("Failed to add product to cart!");
-            },
-          }
-        );
-      }
-    } else {
+    const isDifferentShop = cartProduct?.data?.find(
+      (cart) => cart.product?.shopId !== product?.shopId,
+    );
+
+    if (isDifferentShop) {
       Swal.fire({
-        title: "Please login",
-        text: "Please login to add product in cart!",
+        title: "Different shop detected",
+        text: "Adding multiple shop products is not allowed. Replace the cart with this product?",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Login",
+        confirmButtonColor: "#f97316",
+        cancelButtonColor: "#9ca3af",
+        confirmButtonText: "Yes, replace",
       }).then((result) => {
         if (result.isConfirmed) {
-          router.push("/login");
-        }
-      });
-    }
-  };
-
-  const handleAddToCompare = (
-    product: IProduct & { type?: "replaceProduct" }
-  ) => {
-    if (user?.email) {
-      const isDifferentShop = comparisons?.data?.find(
-        (compare) => compare.product?.shopId !== product?.shopId
-      );
-
-      if (isDifferentShop) {
-        Swal.fire({
-          title: "Detect Different Shop",
-          text: "Adding multiple shop products is not allowed! Replace the comparison product with the new product!",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#3085d6",
-          cancelButtonColor: "#d33",
-          confirmButtonText: "Yes, Replace",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            addToCompare(
-              { productId: product.id, type: "replaceProduct" },
-              {
-                onSuccess(data) {
-                  if (data?.success) {
-                    refetchComparison();
-                    toast.success(data?.message);
-                  } else {
-                    toast.error(data?.message);
-                  }
-                },
-              }
-            );
-          }
-        });
-      } else {
-        addToCompare(
-          { productId: product.id },
-          {
-            onSuccess(data) {
-              if (data?.success) {
-                refetchComparison();
-                if (comparisons?.data?.length === 2) {
-                  setShowCompareModal(true);
+          addToCart(
+            { productId: product.id, quantity: 1, type: "replaceProduct" },
+            {
+              onSuccess(data) {
+                if (data?.success) {
+                  refetchCart();
+                  toast.success(data?.message);
+                } else {
+                  toast.error(data?.message);
                 }
-                toast.success(data?.message);
-              } else {
-                toast.error(data?.message);
-              }
+              },
+              onError() {
+                toast.error("Failed to add product to cart.");
+              },
             },
-          }
-        );
-      }
-    } else {
-      Swal.fire({
-        title: "Please login",
-        text: "Please login to add product in cart!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Login",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          router.push("/login");
+          );
         }
       });
+    } else {
+      addToCart(
+        { productId: product.id, quantity: 1 },
+        {
+          onSuccess(data) {
+            if (data?.success) {
+              refetchCart();
+              toast.success(data?.message);
+            } else {
+              toast.error(data?.message);
+            }
+          },
+          onError() {
+            toast.error("Failed to add product to cart.");
+          },
+        },
+      );
     }
   };
 
-  const handleAddToWishlist = async (product: IProduct) => {
-    if (user?.email) {
-      try {
-        addToWishlist({ productId: product.id });
-        toast.success("Product added to wishlist!");
-      } catch {
-        toast.error("Failed to add product to wishlist.");
-      }
-    } else {
+  const handleAddToCompare = (product: IProduct) => {
+    if (!user?.email) {
+      promptLogin("Please login to compare products!");
+      return;
+    }
+
+    const isDifferentShop = comparisons?.data?.find(
+      (compare) => compare.product?.shopId !== product?.shopId,
+    );
+
+    if (isDifferentShop) {
       Swal.fire({
-        title: "Please login",
-        text: "Please login to add product to wishlist!",
+        title: "Different shop detected",
+        text: "Replace the comparison list with this product?",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Login",
+        confirmButtonColor: "#f97316",
+        cancelButtonColor: "#9ca3af",
+        confirmButtonText: "Yes, replace",
       }).then((result) => {
         if (result.isConfirmed) {
-          router.push("/login");
+          addToCompare(
+            { productId: product.id, type: "replaceProduct" },
+            {
+              onSuccess(data) {
+                if (data?.success) {
+                  refetchComparison();
+                  toast.success(data?.message);
+                } else {
+                  toast.error(data?.message);
+                }
+              },
+            },
+          );
         }
       });
+    } else {
+      addToCompare(
+        { productId: product.id },
+        {
+          onSuccess(data) {
+            if (data?.success) {
+              refetchComparison();
+              if (comparisons?.data?.length === 2) {
+                setShowCompareModal(true);
+              }
+              toast.success(data?.message);
+            } else {
+              toast.error(data?.message);
+            }
+          },
+        },
+      );
     }
   };
+
+  const handleAddToWishlist = (product: IProduct) => {
+    if (!user?.email) {
+      promptLogin("Please login to add product to wishlist!");
+      return;
+    }
+    try {
+      addToWishlist({ productId: product.id });
+      toast.success("Product added to wishlist!");
+    } catch {
+      toast.error("Failed to add product to wishlist.");
+    }
+  };
+
+  const hasDiscount = (product.discount_percentage ?? 0) > 0;
+  const finalPrice = hasDiscount
+    ? product.price * (1 - product.discount_percentage / 100)
+    : product.price;
 
   return (
     <div
-      className="group relative bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+      className="group relative bg-white rounded-2xl overflow-hidden ring-1 ring-gray-100 shadow-[0_4px_20px_-12px_rgba(0,0,0,0.08)] hover:shadow-[0_24px_48px_-24px_rgba(255,140,0,0.35)] hover:ring-orange-100 transition-all duration-300 hover:-translate-y-1"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Product Badge - Optional */}
-      {product.discount_percentage > 0 && (
-        <div className="absolute top-3 left-3 z-10 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md">
-          {product.discount_percentage}% OFF
-        </div>
-      )}
-
-      {/* Image Container */}
-      <div className="relative h-64 overflow-hidden bg-gray-100">
+      <div className="relative h-60 overflow-hidden bg-gradient-to-br from-gray-50 to-orange-50/40 p-4">
         <Image
           height={400}
           width={400}
-          className={`object-contain w-full h-full transition-transform duration-700 ${isHovered ? "scale-110" : "scale-100"}`}
+          className={`object-contain w-full h-full transition-transform duration-700 ease-out ${
+            isHovered ? "scale-110" : "scale-100"
+          }`}
           src={product.images?.[0] || "/placeholder.svg"}
           alt={product.name}
         />
 
-        {/* Quick Action Buttons */}
+        {hasDiscount && (
+          <span className="absolute top-3 left-3 z-10 inline-flex items-center rounded-full bg-rose-500 text-white text-[11px] font-semibold px-2.5 py-1 shadow-sm">
+            -{Math.round(product.discount_percentage)}%
+          </span>
+        )}
+
+        {product.isFlashSale && !hasDiscount && (
+          <span className="absolute top-3 left-3 z-10 inline-flex items-center rounded-full bg-amber-500 text-white text-[11px] font-semibold px-2.5 py-1 shadow-sm">
+            Flash Sale
+          </span>
+        )}
+
         <div
-          className={`absolute top-2 right-2 flex flex-col gap-2 transition-opacity duration-300 ${isHovered ? "opacity-100" : "opacity-0"}`}
+          className={`absolute top-3 right-3 flex flex-col gap-2 transition-all duration-300 ${
+            isHovered
+              ? "opacity-100 translate-x-0"
+              : "opacity-0 translate-x-2 pointer-events-none"
+          }`}
         >
           <button
             onClick={() => handleAddToWishlist(product)}
-            className="p-2 bg-white rounded-full shadow-md hover:bg-rose-500 hover:text-white transition-colors duration-300 transform hover:scale-110"
             aria-label="Add to wishlist"
+            className="p-2 bg-white/90 backdrop-blur rounded-full ring-1 ring-gray-100 shadow-sm hover:bg-rose-500 hover:text-white hover:ring-rose-500 transition"
           >
-            <CiHeart size={18} />
+            <Heart size={16} />
           </button>
           <Link
             href={`/products/${product.id}`}
-            className="p-2 bg-white rounded-full shadow-md hover:bg-blue-500 hover:text-white transition-colors duration-300 transform hover:scale-110"
             aria-label="Quick view"
+            className="p-2 bg-white/90 backdrop-blur rounded-full ring-1 ring-gray-100 shadow-sm hover:bg-gray-900 hover:text-white hover:ring-gray-900 transition"
           >
-            <IoEyeOutline size={18} />
+            <Eye size={16} />
           </Link>
           <button
             onClick={() => handleAddToCompare(product)}
-            className="p-2 bg-white rounded-full shadow-md hover:bg-green-500 hover:text-white transition-colors duration-300 transform hover:scale-110"
             aria-label="Compare product"
+            className="p-2 bg-white/90 backdrop-blur rounded-full ring-1 ring-gray-100 shadow-sm hover:bg-orange-500 hover:text-white hover:ring-orange-500 transition"
           >
-            <IoGitCompareOutline size={18} />
+            <GitCompareArrows size={16} />
           </button>
         </div>
 
-        {/* Add to Cart Button - Appears on Hover */}
         <div
-          className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 transition-transform duration-300 ${isHovered ? "translate-y-0" : "translate-y-full"}`}
+          className={`absolute inset-x-3 bottom-3 transition-all duration-300 ${
+            isHovered
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-3 pointer-events-none"
+          }`}
         >
           <button
             onClick={() => handleAddToCart(product)}
-            className="w-full py-2 bg-orange-500 text-white rounded-md flex items-center justify-center gap-2 hover:bg-orange-600 transition-colors duration-300"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-gray-900 hover:bg-orange-500 text-white text-sm font-medium py-2.5 transition-colors"
           >
-            <IoCartOutline size={18} />
+            <ShoppingCart size={16} />
             Add to Cart
           </button>
         </div>
       </div>
 
-      {/* Product Info */}
-      <div className="p-4">
+      <div className="p-4 space-y-2">
         <Link
           href={`/shops/${product.shopId}`}
-          className="text-xs text-blue-600 hover:underline mb-1 inline-block"
+          className="text-xs font-medium text-orange-600 hover:text-orange-700 inline-block"
         >
-          {product.shop?.shopName}
+          {product.shop?.shopName ?? "Dokan Express"}
         </Link>
 
-        <h3 className="text-lg font-semibold text-gray-800 line-clamp-2 h-14 mb-2">
-          {product.name}
-        </h3>
+        <Link href={`/products/${product.id}`}>
+          <h3 className="text-base font-semibold text-gray-900 line-clamp-2 min-h-[3rem] hover:text-orange-600 transition-colors">
+            {product.name}
+          </h3>
+        </Link>
 
-        <div className="flex items-center justify-between mt-2">
-          <div className="flex flex-col">
-         
-            {product.discount_percentage > 0 ? (
-              <>
-                <span className="text-red-500 font-bold text-lg">
-                  $
-                  {(
-                    product.price *
-                    (1 - product.discount_percentage / 100)
-                  ).toFixed(2)}
-                </span>
-                <span className="text-gray-500 line-through text-sm">
-                  ${product.price}
-                </span>
-              </>
-            ) : (
-              <span className="text-gray-800 font-bold text-lg">
-                ${product.price}
+        <div className="flex items-center justify-between pt-1">
+          <div className="flex items-baseline gap-2">
+            <span className="text-lg font-semibold text-gray-900">
+              ${finalPrice.toFixed(2)}
+            </span>
+            {hasDiscount && (
+              <span className="text-xs text-gray-400 line-through">
+                ${product.price.toFixed(2)}
               </span>
             )}
           </div>
 
-          {/* Rating Stars - Optional
-          {product. && (
-            <div className="flex items-center gap-1">
-              <span className="text-amber-400">â˜…</span>
-              <span className="text-sm text-gray-600">{product.rating}</span>
-            </div>
-          )} */}
+          <div className="flex items-center gap-1 text-xs text-gray-500">
+            <Star size={12} className="fill-amber-400 text-amber-400" />
+            <span>4.8</span>
+          </div>
         </div>
       </div>
     </div>

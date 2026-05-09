@@ -1,50 +1,53 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Truck, Headphones, RefreshCw, ShieldCheck } from "lucide-react";
 
 const BENEFITS = [
-  { title: "Free Shipping", subtitle: "On all orders over $50", icon: "M5 13l4 4L19 7" },
-  { title: "24/7 Support", subtitle: "Customer support", icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" },
-  { title: "Money Back", subtitle: "30-day guarantee", icon: "M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" },
+  {
+    title: "Free Shipping",
+    subtitle: "On all orders over $50",
+    Icon: Truck,
+  },
+  {
+    title: "24/7 Support",
+    subtitle: "Reach us anytime",
+    Icon: Headphones,
+  },
+  {
+    title: "30-Day Returns",
+    subtitle: "Hassle-free guarantee",
+    Icon: RefreshCw,
+  },
   {
     title: "Secure Payments",
     subtitle: "100% protected checkout",
-    icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
+    Icon: ShieldCheck,
   },
 ] as const;
 
 const Benefits = () => {
   return (
-    <section className="py-10 bg-gray-50 pl-6 pr-6">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <section className="py-12 md:py-16 px-4 md:px-6 lg:px-8">
+      <div className="container mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
           {BENEFITS.map((benefit, i) => (
             <motion.div
               key={benefit.title}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
+              transition={{ duration: 0.4, delay: i * 0.08 }}
               viewport={{ once: true }}
-              className="flex items-center p-4 bg-white rounded-lg shadow-sm"
+              className="group flex items-center gap-4 rounded-2xl bg-white ring-1 ring-gray-100 px-5 py-4 hover:ring-orange-200 hover:shadow-[0_20px_40px_-25px_rgba(255,165,0,0.4)] transition-all"
             >
-              <div className="rounded-full bg-orange-100 p-3 mr-4">
-                <svg
-                  className="w-6 h-6 text-orange-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d={benefit.icon}
-                  />
-                </svg>
+              <div className="flex-shrink-0 grid place-items-center h-12 w-12 rounded-xl bg-gradient-to-br from-orange-100 to-amber-100 text-orange-600 group-hover:scale-110 transition-transform">
+                <benefit.Icon size={20} />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">{benefit.title}</h3>
-                <p className="text-sm text-gray-600">{benefit.subtitle}</p>
+                <h3 className="font-semibold text-gray-900 text-sm">
+                  {benefit.title}
+                </h3>
+                <p className="text-xs text-gray-500 mt-0.5">{benefit.subtitle}</p>
               </div>
             </motion.div>
           ))}

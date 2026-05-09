@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowRight, Flame } from "lucide-react";
 import { useCountdown } from "@/src/hooks/useCountdown";
 
 const DEAL_IMAGE =
@@ -10,23 +11,29 @@ const DealOfDay = () => {
   const timeLeft = useCountdown({ hours: 5, minutes: 30, seconds: 0 });
 
   return (
-    <section className="py-12 pl-8 pr-6 bg-gradient-to-r from-orange-50 to-amber-50">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-          <div className="order-2 lg:order-1">
-            <div className="max-w-lg">
-              <div className="inline-block bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-sm font-medium mb-4">
-                Limited Time Offer
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Deal of the Day
+    <section className="py-12 md:py-16 px-4 md:px-6 lg:px-8">
+      <div className="container mx-auto">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-orange-500 via-orange-500 to-amber-400 px-6 py-10 md:px-12 md:py-14 shadow-[0_30px_60px_-30px_rgba(255,140,0,0.55)]">
+          <div className="absolute -top-32 -right-24 h-96 w-96 rounded-full bg-amber-300/30 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-rose-300/30 blur-3xl pointer-events-none" />
+
+          <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+            <div className="text-white space-y-5 max-w-xl">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 backdrop-blur px-3 py-1 text-xs font-medium tracking-wide ring-1 ring-white/30">
+                <Flame size={12} />
+                Limited time offer
+              </span>
+              <h2 className="text-3xl md:text-5xl font-semibold tracking-tight leading-[1.05]">
+                Deal of the day,
+                <br />
+                <span className="text-white/90">35% off everything.</span>
               </h2>
-              <p className="text-gray-600 mb-6">
-                Don&apos;t miss out on our exclusive deal of the day! Get this premium
-                product at an unbeatable price.
+              <p className="text-white/80 max-w-md">
+                Don&apos;t miss out — our best pick for today, hand-curated and
+                priced to move.
               </p>
 
-              <div className="flex space-x-4 mb-6">
+              <div className="flex flex-wrap items-center gap-3">
                 {[
                   { label: "Hours", value: timeLeft.hours },
                   { label: "Minutes", value: timeLeft.minutes },
@@ -34,43 +41,56 @@ const DealOfDay = () => {
                 ].map((unit) => (
                   <div
                     key={unit.label}
-                    className="bg-white rounded-lg shadow-sm p-3 w-20 text-center"
+                    className="flex flex-col items-center justify-center rounded-2xl bg-white/15 backdrop-blur ring-1 ring-white/20 px-4 py-3 min-w-[72px]"
                   >
-                    <span className="block text-2xl font-bold text-gray-900">
+                    <span className="text-2xl md:text-3xl font-semibold tabular-nums text-white">
                       {String(unit.value).padStart(2, "0")}
                     </span>
-                    <span className="text-xs text-gray-500">{unit.label}</span>
+                    <span className="text-[10px] uppercase tracking-wider text-white/70 mt-0.5">
+                      {unit.label}
+                    </span>
                   </div>
                 ))}
               </div>
 
-              <div className="flex items-center mb-6">
-                <span className="text-3xl font-bold text-gray-900">$129.99</span>
-                <span className="ml-2 text-xl text-gray-500 line-through">$199.99</span>
-                <span className="ml-2 mr-4 bg-red-100 text-red-800 text-sm px-2 py-1 rounded font-semibold">
-                  35% OFF
+              <div className="flex flex-wrap items-baseline gap-3 pt-2">
+                <span className="text-4xl md:text-5xl font-semibold text-white">
+                  $129.99
+                </span>
+                <span className="text-lg text-white/60 line-through">
+                  $199.99
+                </span>
+                <span className="rounded-full bg-white text-orange-600 text-xs font-semibold px-3 py-1">
+                  Save 35%
                 </span>
               </div>
 
-              <Link
-                href="/products/deal-of-the-day"
-                className="inline-block bg-orange-600 text-white py-3 px-8 rounded-full text-lg font-medium hover:bg-orange-700 transition-colors"
-              >
-                Shop Now
-              </Link>
-            </div>
-          </div>
-          <div className="order-1 lg:order-2 flex justify-center">
-            <div className="relative">
-              <div className="absolute -top-4 -right-2 bg-red-500 text-white text-lg font-bold w-20 h-16 rounded-full flex items-center justify-center transform rotate-12 z-10">
-                30% OFF
+              <div>
+                <Link
+                  href="/products"
+                  className="group inline-flex items-center gap-1.5 rounded-full bg-gray-900 hover:bg-black px-6 py-3 text-sm font-medium text-white transition"
+                >
+                  Shop the deal
+                  <ArrowRight
+                    size={16}
+                    className="transition-transform group-hover:translate-x-0.5"
+                  />
+                </Link>
               </div>
-              <div className="bg-white p-8 rounded-lg shadow-md">
-                <img
-                  src={DEAL_IMAGE}
-                  alt="Deal of the Day Product"
-                  className="max-w-full h-auto"
-                />
+            </div>
+
+            <div className="relative flex justify-center lg:justify-end">
+              <div className="relative">
+                <div className="absolute -top-4 -right-2 z-10 grid place-items-center bg-rose-500 text-white text-sm font-bold w-20 h-20 rounded-full rotate-12 shadow-lg ring-4 ring-rose-300/50">
+                  30% OFF
+                </div>
+                <div className="bg-white rounded-3xl p-8 shadow-[0_30px_60px_-25px_rgba(0,0,0,0.35)]">
+                  <img
+                    src={DEAL_IMAGE}
+                    alt="Deal of the day product"
+                    className="max-w-full h-auto rounded-2xl"
+                  />
+                </div>
               </div>
             </div>
           </div>

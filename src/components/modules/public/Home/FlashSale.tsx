@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock } from "lucide-react";
+import { Zap } from "lucide-react";
 import ProductCart from "@/src/components/UI/ProductCart/ProductCart";
 import { useGetAllProducts } from "@/src/hooks/product";
 import { useCountdown } from "@/src/hooks/useCountdown";
@@ -17,38 +17,53 @@ const FlashSale = () => {
     timeLeft.hours > 0 || timeLeft.minutes > 0 || timeLeft.seconds > 0;
 
   return (
-    <section className="relative bg-gray-100 py-12 pl-12 pr-8">
-      <div className="container mx-auto text-center" />
-      <h2 className="text-3xl text-center font-semibold text-gray-900 mb-6">
-        Flash Sale
-      </h2>
-      <p className="text-gray-600 text-center mb-6">
-        Grab the best deals on our top products
-      </p>
-      <div className="flex items-center justify-center gap-4 mb-6">
-        {isLive ? (
-          <div className="flex items-center gap-2 bg-red-50 p-3 rounded-lg">
-            <Clock className="text-red-500" size={20} />
-            <div className="flex gap-2">
-              <div className="bg-red-500 text-white px-2 py-1 rounded">
-                {String(timeLeft.hours).padStart(2, "0")}h
-              </div>
-              <div className="bg-red-500 text-white px-2 py-1 rounded">
-                {String(timeLeft.minutes).padStart(2, "0")}m
-              </div>
-              <div className="bg-red-500 text-white px-2 py-1 rounded">
-                {String(timeLeft.seconds).padStart(2, "0")}s
+    <section className="relative py-12 md:py-16 px-4 md:px-6 lg:px-8 bg-gradient-to-b from-orange-50/40 to-white">
+      <div className="container mx-auto">
+        <div className="flex flex-col items-center text-center mb-10">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-100 text-rose-700 text-[11px] font-medium tracking-wider uppercase px-3 py-1">
+            <Zap size={11} className="fill-rose-700" />
+            Flash Sale
+          </span>
+          <h2 className="mt-3 text-3xl md:text-4xl font-semibold tracking-tight text-gray-900">
+            Going fast, going cheap.
+          </h2>
+          <p className="mt-2 text-sm md:text-base text-gray-500 max-w-xl">
+            A short-window selection of our top picks at their best prices.
+          </p>
+
+          {isLive ? (
+            <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-white ring-1 ring-rose-100 px-3 py-2 shadow-sm">
+              <span className="text-xs text-gray-500 font-medium">
+                Ends in
+              </span>
+              <div className="flex items-center gap-1.5">
+                {[
+                  { label: "h", value: timeLeft.hours },
+                  { label: "m", value: timeLeft.minutes },
+                  { label: "s", value: timeLeft.seconds },
+                ].map((unit) => (
+                  <span
+                    key={unit.label}
+                    className="rounded-md bg-gray-900 text-white text-xs font-semibold tabular-nums px-2 py-1"
+                  >
+                    {String(unit.value).padStart(2, "0")}
+                    <span className="opacity-60 ml-0.5">{unit.label}</span>
+                  </span>
+                ))}
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="text-xl font-semibold text-gray-600">Sale Ended</div>
-        )}
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
-        {flashSaleProducts?.slice(0, 5).map((product) => (
-          <ProductCart key={product.id} product={product} />
-        ))}
+          ) : (
+            <div className="mt-6 text-sm font-semibold text-gray-500">
+              Sale ended
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+          {flashSaleProducts?.slice(0, 5).map((product) => (
+            <ProductCart key={product.id} product={product} />
+          ))}
+        </div>
       </div>
     </section>
   );
