@@ -5,6 +5,8 @@ import { Providers } from "../lib/Provider";
 import { siteConfig } from "@/src/config/site";
 import { poppins } from "@/src/config/fonts";
 import ScrollToTop from "../components/UI/ScrollToTop/ScrollToTop";
+import { getCurrentUser } from "../services/Auth";
+import type { IUser } from "../types";
 
 export const metadata: Metadata = {
   title: {
@@ -21,11 +23,13 @@ export const viewport: Viewport = {
   themeColor: "#ffffff",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const initialUser = (await getCurrentUser()) as IUser | null;
+
   return (
     <html lang="en">
       <head />
@@ -35,7 +39,7 @@ export default function RootLayout({
           poppins.className
         )}
       >
-        <Providers>
+        <Providers initialUser={initialUser}>
           {children}
           <ScrollToTop />
         </Providers>

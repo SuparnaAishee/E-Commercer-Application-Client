@@ -86,10 +86,16 @@ interface IUserContext {
   setShowCompareModal: Dispatch<SetStateAction<boolean>>;
 }
 
-const UserProvider = ({ children }: { children: ReactNode }) => {
+const UserProvider = ({
+  children,
+  initialUser = null,
+}: {
+  children: ReactNode;
+  initialUser?: IUser | null;
+}) => {
   const [showCompareModal, setShowCompareModal] = useState(false);
-  const [isUserLoading, setIsUserLoading] = useState(true);
-  const [user, setUser] = useState<IUser | null>(null);
+  const [isUserLoading, setIsUserLoading] = useState(false);
+  const [user, setUser] = useState<IUser | null>(initialUser);
 
   const handleUser = async () => {
     const fetched = await getCurrentUser();
@@ -98,7 +104,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    handleUser();
+    if (isUserLoading) handleUser();
   }, [isUserLoading]);
 
   return (
