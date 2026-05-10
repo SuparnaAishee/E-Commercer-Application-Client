@@ -94,3 +94,11 @@ body {
 .admin-primary-bg {
   background-color: #f3f3f3;
 }
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
