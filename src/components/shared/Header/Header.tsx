@@ -4,7 +4,7 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronDown, Menu, Search } from "lucide-react";
+import { ChevronDown, Menu, Search as SearchIcon } from "lucide-react";
 import { useUser } from "@/src/context/user.provider";
 import { useGetAllCategory } from "@/src/hooks/category";
 import AccountDropdown from "./AccountDropdown";
@@ -13,6 +13,7 @@ import MenuDropdown from "./MenuDropdoen";
 import Wishlist from "./wishlist";
 import Compare from "./Compare";
 import Comparison from "@/src/components/modal/Comparison";
+import Search from "./Search";
 
 const NAV_LINKS = [
   { name: "Home", path: "/" },
@@ -102,40 +103,14 @@ const MainHeader = () => {
             </select>
           </div>
 
-          <ul className="hidden lg:flex items-center space-x-6 ml-8">
-            {NAV_LINKS.map((link) => (
-              <li key={link.path}>
-                <Link
-                  href={link.path}
-                  className={`relative leading-[26px] flex items-center text-base font-medium px-2 transition-all duration-300 ${
-                    pathname === link.path
-                      ? "text-orange-500"
-                      : "text-gray-700 hover:text-orange-500"
-                  }`}
-                  onMouseEnter={() => setHighlightedLink(link.path)}
-                  onMouseLeave={() => setHighlightedLink(null)}
-                >
-                  {link.name}
-                  <span
-                    className={`absolute -bottom-1 left-0 w-full h-0.5 bg-orange-500 rounded-full transition-all duration-300 ${
-                      pathname === link.path
-                        ? "scale-x-100"
-                        : highlightedLink === link.path
-                          ? "scale-x-75"
-                          : "scale-x-0"
-                    }`}
-                  />
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <Search className="hidden lg:block flex-1 max-w-2xl ml-6 mr-6" />
 
           <div className="flex items-center space-x-3">
             <button
               aria-label="Search"
               className="lg:hidden text-gray-700 hover:text-orange-500"
             >
-              <Search className="h-5 w-5" />
+              <SearchIcon className="h-5 w-5" />
             </button>
 
             {user?.email ? (
@@ -178,7 +153,8 @@ const MainHeader = () => {
         </div>
 
         {isMenuOpen && (
-          <div className="lg:hidden mt-4">
+          <div className="lg:hidden mt-4 space-y-3">
+            <Search />
             <ul className="space-y-2">
               {NAV_LINKS.map((link) => (
                 <li key={link.path}>

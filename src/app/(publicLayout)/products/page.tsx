@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSearchParams } from "next/navigation";
 import { useProduct } from "@/src/context/product.provider";
 import { useGetAllCategory } from "@/src/hooks/category";
 import { useGetAllProducts } from "@/src/hooks/product";
@@ -40,6 +41,26 @@ import ProductCart from "@/src/components/UI/ProductCart/ProductCart";
 const ProductPage = () => {
   const { query, setQuery, selectedCategory, setSelectedCategory } =
     useProduct();
+  const searchParams = useSearchParams();
+  const urlSearchTerm = searchParams.get("searchTerm");
+  const urlCategory = searchParams.get("category");
+
+  useEffect(() => {
+    setQuery((prev) => {
+      let next = prev;
+      if (urlSearchTerm) {
+        next = next.filter((q) => q.name !== "searchTerm");
+        next = [...next, { name: "searchTerm", value: urlSearchTerm }];
+      }
+      if (urlCategory) {
+        next = next.filter((q) => q.name !== "category");
+        next = [...next, { name: "category", value: urlCategory }];
+      }
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlSearchTerm, urlCategory]);
+
   const { data: products, isLoading: productsLoading } =
     useGetAllProducts(query);
   const { data: categories, isLoading: categoriesLoading } = useGetAllCategory(
