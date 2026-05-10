@@ -128,7 +128,7 @@ const ProfilePage = () => {
     photoPreview ?? profile?.profilePhoto ?? null;
 
   return (
-    <div className="col-span-12 lg:col-span-9 p-2 md:p-4 space-y-6">
+    <div className="col-span-12 lg:col-span-9 space-y-6">
       {profileLoading ? (
         <ProfileHeaderSkeleton />
       ) : (

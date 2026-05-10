@@ -6,7 +6,7 @@ import Search from "./Search";
 const TopHeader = () => {
   return (
     <div className="bg-white pl-4 pr-4 py-1 hidden lg:block border-b border-gray-200">
-      <div className="container mx-auto px-4 lg:px-8">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-6">
           <Link href="/" className="w-[110px] flex-shrink-0">
             <img

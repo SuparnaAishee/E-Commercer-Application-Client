@@ -225,7 +225,7 @@ const WishlistPage = () => {
   };
 
   return (
-    <div className="col-span-12 lg:col-span-9 p-2 md:p-4 space-y-6">
+    <div className="col-span-12 lg:col-span-9 space-y-6">
       {/* Editorial header */}
       <header className="rounded-2xl bg-white ring-1 ring-gray-100 p-6 md:p-8 shadow-[0_2px_20px_-15px_rgba(0,0,0,0.08)]">
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-5">
