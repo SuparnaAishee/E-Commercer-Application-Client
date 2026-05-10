@@ -72,9 +72,13 @@ const ProductPage = () => {
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const [gridView, setGridView] = useState<"grid3" | "grid2" | "list">("grid3");
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortOrder, setSortOrder] = useState<"" | "asc" | "desc">("");
+  const [sortOrder, setSortOrder] = useState<
+    "" | "asc" | "desc" | "newest" | "rating"
+  >("");
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [isFilterApplied, setIsFilterApplied] = useState(false);
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [minRating, setMinRating] = useState(0);
 
   // Initialize search value from query
   useEffect(() => {
@@ -232,6 +236,37 @@ const ProductPage = () => {
     },
   };
 
+  const visibleProducts = (() => {
+    let list = products?.data ?? [];
+    if (inStockOnly) list = list.filter((p) => (p.inventory ?? 0) > 0);
+    if (minRating > 0) {
+      list = list.filter((p) => {
+        const reviews = p.reviews ?? [];
+        if (reviews.length === 0) return false;
+        const avg =
+          reviews.reduce((s, r) => s + (r.rating ?? 0), 0) / reviews.length;
+        return avg >= minRating;
+      });
+    }
+    if (sortOrder === "newest") {
+      list = [...list].sort(
+        (a, b) =>
+          new Date(b.createdAt ?? 0).getTime() -
+          new Date(a.createdAt ?? 0).getTime(),
+      );
+    }
+    if (sortOrder === "rating") {
+      const avg = (p: (typeof list)[number]) => {
+        const r = p.reviews ?? [];
+        return r.length === 0
+          ? 0
+          : r.reduce((s, x) => s + (x.rating ?? 0), 0) / r.length;
+      };
+      list = [...list].sort((a, b) => avg(b) - avg(a));
+    }
+    return list;
+  })();
+
   // Get grid classes based on view mode
   const getGridClasses = () => {
     switch (gridView) {
@@ -361,10 +396,54 @@ const ProductPage = () => {
               </div>
             </div>
 
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
+                Availability
+              </h3>
+              <label className="flex items-center justify-between cursor-pointer text-sm text-gray-700">
+                <span className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={inStockOnly}
+                    onChange={(e) => setInStockOnly(e.target.checked)}
+                    className="rounded text-orange-500 focus:ring-orange-500"
+                  />
+                  In stock only
+                </span>
+              </label>
+            </div>
+
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
+                Customer rating
+              </h3>
+              <div className="space-y-1.5">
+                {[4, 3, 2, 0].map((threshold) => (
+                  <label
+                    key={threshold}
+                    className="flex items-center gap-2 cursor-pointer text-sm text-gray-700 hover:text-orange-600"
+                  >
+                    <input
+                      type="radio"
+                      name="min-rating"
+                      checked={minRating === threshold}
+                      onChange={() => setMinRating(threshold)}
+                      className="text-orange-500 focus:ring-orange-500"
+                    />
+                    {threshold === 0 ? "All ratings" : `${threshold}★ & up`}
+                  </label>
+                ))}
+              </div>
+            </div>
+
             <Button
               color="primary"
               className="w-full"
-              onClick={handleResetFilters}
+              onClick={() => {
+                setInStockOnly(false);
+                setMinRating(0);
+                handleResetFilters();
+              }}
               startContent={<RefreshCw size={16} />}
             >
               Reset Filters
@@ -394,22 +473,32 @@ const ProductPage = () => {
                     <Button
                       variant="flat"
                       endContent={<ChevronDown size={16} />}
-                      startContent={
-                        sortOrder === "asc" ? (
-                          <ArrowUpDown size={16} />
-                        ) : (
-                          <ArrowDownUp size={16} />
-                        )
-                      }
+                      startContent={<ArrowDownUp size={16} />}
                     >
                       {sortOrder === "asc"
                         ? "Price: Low to High"
                         : sortOrder === "desc"
                           ? "Price: High to Low"
-                          : "Sort By"}
+                          : sortOrder === "newest"
+                            ? "Newest first"
+                            : sortOrder === "rating"
+                              ? "Top rated"
+                              : "Sort By"}
                     </Button>
                   </DropdownTrigger>
                   <DropdownMenu aria-label="Sort options">
+                    <DropdownItem
+                      key="newest"
+                      onClick={() => setSortOrder("newest")}
+                    >
+                      Newest first
+                    </DropdownItem>
+                    <DropdownItem
+                      key="rating"
+                      onClick={() => setSortOrder("rating")}
+                    >
+                      Top rated
+                    </DropdownItem>
                     <DropdownItem
                       key="asc"
                       startContent={<ArrowUpDown size={16} />}
@@ -501,18 +590,16 @@ const ProductPage = () => {
                 <ProductCardSkeleton key={i} />
               ))}
             </div>
-          ) : products?.data && products?.data?.length > 0 ? (
+          ) : visibleProducts.length > 0 ? (
             <motion.div
               className={`grid ${getGridClasses()}`}
               variants={containerVariants}
               initial="hidden"
               animate="visible"
             >
-            
-                {products?.data?.map((product) => (
-                  <ProductCart key={product.id} product={product} />
-                ))}
-             
+              {visibleProducts.map((product) => (
+                <ProductCart key={product.id} product={product} />
+              ))}
             </motion.div>
           ) : (
             <div className="bg-white rounded-xl shadow-sm p-12 text-center">
