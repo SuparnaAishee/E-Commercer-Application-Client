@@ -156,37 +156,43 @@ const Login = () => {
                 </div>
 
                 <div className="mb-6">
+                  <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400 mb-2 text-center">
+                    Try a demo account
+                  </p>
                   <div className="grid grid-cols-3 gap-3">
                     <button
+                      type="button"
                       onClick={() =>
                         reset({
-                          email: "ari@gmail.com",
-                          password: "a12345",
+                          email: "alice@dokanxpress.dev",
+                          password: "password123",
                         })
                       }
-                      className="py-2 px-3 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors"
+                      className="py-2 px-3 bg-gray-50 hover:bg-orange-50 hover:text-orange-700 ring-1 ring-gray-200 hover:ring-orange-200 rounded-lg text-sm font-medium transition-colors"
                     >
                       User
                     </button>
                     <button
+                      type="button"
                       onClick={() =>
                         reset({
-                          email: "aishee@gmail.com",
-                          password: "a12345",
+                          email: "vendor1@dokanxpress.dev",
+                          password: "password123",
                         })
                       }
-                      className="py-2 px-3 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors"
+                      className="py-2 px-3 bg-gray-50 hover:bg-orange-50 hover:text-orange-700 ring-1 ring-gray-200 hover:ring-orange-200 rounded-lg text-sm font-medium transition-colors"
                     >
                       Vendor
                     </button>
                     <button
+                      type="button"
                       onClick={() =>
                         reset({
-                          email: "suparnad806@gmail.com",
-                          password: "admin123",
+                          email: "admin@dokanxpress.dev",
+                          password: "password123",
                         })
                       }
-                      className="py-2 px-3 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors"
+                      className="py-2 px-3 bg-gray-50 hover:bg-orange-50 hover:text-orange-700 ring-1 ring-gray-200 hover:ring-orange-200 rounded-lg text-sm font-medium transition-colors"
                     >
                       Admin
                     </button>
