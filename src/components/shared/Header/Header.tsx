@@ -15,6 +15,7 @@ import Compare from "./Compare";
 import Comparison from "@/src/components/modal/Comparison";
 import CartDrawer from "./CartDrawer";
 import Search from "./Search";
+import NotificationBell from "./NotificationBell";
 
 const NAV_LINKS = [
   { name: "Home", path: "/" },
@@ -150,6 +151,9 @@ const MainHeader = () => {
                 </div>
                 <div className="relative group">
                   <Compare />
+                </div>
+                <div className="relative group">
+                  <NotificationBell />
                 </div>
                 <div className="relative group">
                   <CartDropdown />
