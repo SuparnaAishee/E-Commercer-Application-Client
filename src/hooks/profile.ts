@@ -1,6 +1,10 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { IUser } from "../types";
-import { getMyProfile, updateProfile } from "../services/Profile/profile";
+import { IResponse, IUser } from "../types";
+import {
+  getMyProfile,
+  getMyStats,
+  updateProfile,
+} from "../services/Profile/profile";
 
 export const useUpdateProfile = () => {
   return useMutation<any, Error, FormData>({
@@ -9,8 +13,18 @@ export const useUpdateProfile = () => {
   });
 };
 export const useGetMyProfile = () => {
-  return useQuery<any, Error, IUser>({
+  return useQuery<any, Error, IResponse<IUser>>({
     queryKey: ["my-profile"],
     queryFn: async () => await getMyProfile(),
+  });
+};
+export const useGetMyStats = () => {
+  return useQuery<
+    any,
+    Error,
+    IResponse<{ orders: number; wishlist: number; reviews: number }>
+  >({
+    queryKey: ["my-stats"],
+    queryFn: async () => await getMyStats(),
   });
 };

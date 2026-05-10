@@ -16,3 +16,11 @@ export const getMyProfile = async () => {
     return error.response.data;
   }
 };
+export const getMyStats = async () => {
+  try {
+    const { data } = await AxiosSecure.get("/profile/my-stats");
+    return data;
+  } catch (error: any) {
+    return error.response.data;
+  }
+};

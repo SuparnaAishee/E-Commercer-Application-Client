@@ -1,513 +1,446 @@
 "use client";
 
-import UpdateProfile from "@/src/components/modal/UpdateProfile";
-import { useUser } from "@/src/context/user.provider";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   User,
   Mail,
   MapPin,
   Phone,
-  Edit,
-  Shield,
-  Clock,
-  Award,
-  Activity,
+  Pencil,
+  Camera,
+  Heart,
+  ShoppingBag,
   Star,
+  KeyRound,
+  CalendarClock,
+  ShieldCheck,
+  Save,
+  X,
 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { useGetMyProfile, useGetMyStats, useUpdateProfile } from "@/src/hooks/profile";
+import { ProfileHeaderSkeleton, StatsRowSkeleton, Skeleton } from "@/src/components/UI/Skeleton";
 
-const UserHomePage = () => {
-  const { user, isUserLoading } = useUser();
-  const [activeTab, setActiveTab] = useState("profile");
+type ProfileForm = {
+  name: string;
+  phone: string;
+  description: string;
+  address: string;
+};
+
+const formatJoinDate = (dateString?: string | null) => {
+  if (!dateString) return "—";
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+
+const ProfilePage = () => {
+  const { data: profileData, isLoading: profileLoading, refetch } =
+    useGetMyProfile();
+  const { data: statsData, isLoading: statsLoading } = useGetMyStats();
+  const { mutate: updateProfile, isPending } = useUpdateProfile();
+
+  const profile = profileData?.data;
+  const stats = statsData?.data ?? { orders: 0, wishlist: 0, reviews: 0 };
+
   const [isEditing, setIsEditing] = useState(false);
-  const [showFullDescription, setShowFullDescription] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const pendingFileRef = useRef<File | null>(null);
 
-  
+  const { register, handleSubmit, reset, formState } = useForm<ProfileForm>({
+    defaultValues: { name: "", phone: "", description: "", address: "" },
+  });
 
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
+  useEffect(() => {
+    if (profile) {
+      reset({
+        name: profile.name ?? "",
+        phone: profile.phone ?? "",
+        description: profile.description ?? "",
+        address: profile.address ?? "",
+      });
+    }
+  }, [profile, reset]);
+
+  const onPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    pendingFileRef.current = file;
+    setPhotoPreview(URL.createObjectURL(file));
+    setIsEditing(true);
+  };
+
+  const onSubmit = (values: ProfileForm) => {
+    const formData = new FormData();
+    const dirtyData: Partial<ProfileForm> = {};
+    for (const key of Object.keys(values) as (keyof ProfileForm)[]) {
+      const v = values[key]?.trim();
+      if (v !== undefined && v !== "") dirtyData[key] = v;
+    }
+    formData.append("data", JSON.stringify(dirtyData));
+    if (pendingFileRef.current) {
+      formData.append("file", pendingFileRef.current);
+    }
+
+    updateProfile(formData, {
+      onSuccess(d) {
+        if (d?.success) {
+          toast.success("Profile updated");
+          pendingFileRef.current = null;
+          setPhotoPreview(null);
+          setIsEditing(false);
+          refetch();
+        } else {
+          toast.error(d?.message ?? "Could not update profile");
+        }
       },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { type: "spring", stiffness: 300, damping: 24 },
-    },
-  };
-
-  // Format join date
-  const formatJoinDate = (dateString?: string) => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
+      onError() {
+        toast.error("Could not update profile");
+      },
     });
   };
 
-  // Truncate description if needed
-  const truncateDescription = (text?: string, limit = 150) => {
-    if (!text) return "No description available";
-    if (text.length <= limit) return text;
-    return showFullDescription ? text : `${text.slice(0, limit)}...`;
+  const cancel = () => {
+    pendingFileRef.current = null;
+    setPhotoPreview(null);
+    setIsEditing(false);
+    if (profile) {
+      reset({
+        name: profile.name ?? "",
+        phone: profile.phone ?? "",
+        description: profile.description ?? "",
+        address: profile.address ?? "",
+      });
+    }
   };
 
-  // TODO: replace with real counts once GET /api/v1/users/me/stats lands
-  const userStats = [
-    { label: "Orders", value: 0, icon: <Activity size={18} /> },
-    { label: "Wishlist", value: 0, icon: <Award size={18} /> },
-    { label: "Reviews", value: 0, icon: <Star size={18} /> },
-  ];
+  const photoSrc =
+    photoPreview ?? profile?.profilePhoto ?? null;
 
   return (
-    <div className="col-span-12 lg:col-span-9">
-      <motion.div
-        className="p-4"
-        initial="hidden"
-        animate="visible"
-        variants={containerVariants}
-      >
-        <div className="grid grid-cols-12 gap-6">
-          {/* Profile Header */}
-          <motion.div
-            className="col-span-12 bg-gradient-to-r from-orange-500 to-orange-400 rounded-xl shadow-md overflow-hidden relative"
-            variants={itemVariants}
-          >
-            <div className="absolute inset-0 bg-pattern opacity-10"></div>
-            <div className="relative p-6 md:p-8 flex flex-col md:flex-row items-center md:items-start gap-6">
-              <motion.div
-                className="relative"
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 300, damping: 10 }}
-              >
-                {isUserLoading ? (
-                  <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-orange-300 animate-pulse"></div>
+    <div className="col-span-12 lg:col-span-9 p-2 md:p-4 space-y-6">
+      {profileLoading ? (
+        <ProfileHeaderSkeleton />
+      ) : (
+        <motion.section
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 via-orange-500 to-amber-400 text-white p-6 md:p-8 shadow-[0_30px_60px_-30px_rgba(255,140,0,0.55)]"
+        >
+          <div className="absolute -top-24 -right-16 h-64 w-64 rounded-full bg-amber-200/30 blur-3xl pointer-events-none" />
+          <div className="relative flex flex-col md:flex-row items-center md:items-start gap-6">
+            <div className="relative">
+              <div className="h-24 w-24 md:h-28 md:w-28 rounded-full overflow-hidden ring-4 ring-white/40 bg-white/20">
+                {photoSrc ? (
+                  <Image
+                    src={photoSrc}
+                    alt={profile?.name ?? "Profile photo"}
+                    width={112}
+                    height={112}
+                    className="h-full w-full object-cover"
+                    unoptimized={photoSrc.startsWith("blob:")}
+                  />
                 ) : (
-                  <div className="relative">
-                    {user?.profilePhoto ? (
-                      <Image
-                        height={128}
-                        width={128}
-                        alt={`${user?.name}'s profile photo`}
-                        className="rounded-full border-4 border-white shadow-lg object-cover w-24 h-24 md:w-32 md:h-32"
-                        src={user.profilePhoto || "/placeholder.svg"}
-                      />
-                    ) : (
-                      <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-orange-100 flex items-center justify-center border-4 border-white shadow-lg">
-                        <User size={48} className="text-orange-500" />
-                      </div>
-                    )}
-                    <motion.div
-                      className="absolute bottom-0 right-0 bg-green-500 w-4 h-4 md:w-6 md:h-6 rounded-full border-2 border-white"
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{
-                        repeat: Number.POSITIVE_INFINITY,
-                        duration: 2,
-                      }}
-                    />
+                  <div className="h-full w-full grid place-items-center text-white/80">
+                    <User size={42} strokeWidth={1.4} />
                   </div>
                 )}
-              </motion.div>
-
-              <div className="flex-1 text-center md:text-left">
-                {isUserLoading ? (
-                  <div className="space-y-2">
-                    <div className="h-7 bg-orange-300 rounded w-48 mx-auto md:mx-0 animate-pulse"></div>
-                    <div className="h-5 bg-orange-300 rounded w-32 mx-auto md:mx-0 animate-pulse"></div>
-                  </div>
-                ) : (
-                  <>
-                    <h2 className="text-2xl md:text-3xl font-bold text-white">
-                      {user?.name || "Welcome"}
-                    </h2>
-                    <p className="text-orange-100 flex items-center justify-center md:justify-start gap-1 mt-1">
-                      <Mail size={14} />
-                      <span>{user?.email || "No email provided"}</span>
-                    </p>
-                    <div className="mt-3 flex flex-wrap gap-3 justify-center md:justify-start">
-                      <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm flex items-center gap-1">
-                        <Shield size={14} />
-                        <span>{user?.role || "User"}</span>
-                      </span>
-                      <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm flex items-center gap-1">
-                        <Clock size={14} />
-                        <span>Joined {formatJoinDate(user?.createdAt)}</span>
-                      </span>
-                    </div>
-                  </>
-                )}
               </div>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                aria-label="Change photo"
+                className="absolute bottom-0 right-0 grid place-items-center h-8 w-8 rounded-full bg-white text-orange-600 ring-2 ring-orange-500 shadow hover:scale-105 transition"
+              >
+                <Camera size={14} />
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={onPhotoChange}
+              />
+            </div>
 
-              <div className="md:self-start">
-                <UpdateProfile />
+            <div className="flex-1 text-center md:text-left">
+              <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">
+                {profile?.name ?? "Welcome"}
+              </h1>
+              <p className="mt-1 inline-flex items-center gap-1 text-white/85 text-sm">
+                <Mail size={14} />
+                {profile?.email}
+              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-2 justify-center md:justify-start">
+                <span className="inline-flex items-center gap-1 rounded-full bg-white/20 ring-1 ring-white/25 px-3 py-1 text-[11px] backdrop-blur">
+                  <ShieldCheck size={12} />
+                  {profile?.role ?? "USER"}
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-white/20 ring-1 ring-white/25 px-3 py-1 text-[11px] backdrop-blur">
+                  <CalendarClock size={12} />
+                  Joined {formatJoinDate(profile?.createdAt)}
+                </span>
               </div>
             </div>
-          </motion.div>
 
-          {/* Tabs Navigation */}
-          <motion.div
-            className="col-span-12 bg-white rounded-lg shadow-sm overflow-hidden"
-            variants={itemVariants}
-          >
-            <div className="flex overflow-x-auto scrollbar-hide">
-              {["profile",  "settings"].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-6 py-4 font-medium text-sm transition-colors relative flex-1 ${
-                    activeTab === tab
-                      ? "text-orange-600"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
-                >
-                  <span className="capitalize">{tab}</span>
-                  {activeTab === tab && (
-                    <motion.div
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500"
-                      layoutId="activeTab"
-                    />
-                  )}
-                </button>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Profile Content */}
-          <AnimatePresence mode="wait">
-            {activeTab === "profile" && (
-              <motion.div
-                key="profile"
-                className="col-span-12 bg-white rounded-lg shadow-md p-6"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
+            {!isEditing ? (
+              <button
+                type="button"
+                onClick={() => setIsEditing(true)}
+                className="inline-flex items-center gap-1.5 rounded-full bg-white text-orange-600 hover:bg-gray-50 text-sm font-medium px-4 py-2 transition"
               >
-                <div className="flex justify-between items-center mb-6">
-                  <h4 className="text-lg font-semibold text-gray-700">
-                    Personal Information
-                  </h4>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="text-orange-500 hover:text-orange-600 flex items-center gap-1 text-sm"
-                    onClick={() => setIsEditing(!isEditing)}
-                  >
-                    <Edit size={16} />
-                    <span>{isEditing ? "Cancel" : "Edit"}</span>
-                  </motion.button>
-                </div>
+                <Pencil size={14} />
+                Edit profile
+              </button>
+            ) : null}
+          </div>
+        </motion.section>
+      )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Description Section */}
-                  <div className="space-y-4">
-                    <div>
-                      <h5 className="font-semibold text-gray-700 flex items-center gap-2 mb-2">
-                        <User size={18} className="text-orange-500" />
-                        <span>About Me</span>
-                      </h5>
-                      {isEditing ? (
-                        <textarea
-                          className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                          rows={4}
-                          defaultValue={user?.description || ""}
-                          placeholder="Tell us about yourself..."
-                        />
-                      ) : (
-                        <div className="bg-gray-50 p-4 rounded-md">
-                          <p className="text-gray-600">
-                            {truncateDescription(user?.description)}
-                            {user?.description &&
-                              user.description.length > 150 && (
-                                <button
-                                  onClick={() =>
-                                    setShowFullDescription(!showFullDescription)
-                                  }
-                                  className="ml-1 text-orange-500 hover:text-orange-600 font-medium"
-                                >
-                                  {showFullDescription
-                                    ? "Show less"
-                                    : "Read more"}
-                                </button>
-                              )}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <h5 className="font-semibold text-gray-700 flex items-center gap-2 mb-2">
-                        <Phone size={18} className="text-orange-500" />
-                        <span>Contact Information</span>
-                      </h5>
-                      {isEditing ? (
-                        <div className="space-y-3">
-                          <input
-                            type="tel"
-                            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                         
-                            placeholder="Phone number"
-                          />
-                          <input
-                            type="email"
-                            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            defaultValue={user?.email || ""}
-                            placeholder="Email address"
-                          />
-                        </div>
-                      ) : (
-                        <div className="bg-gray-50 p-4 rounded-md space-y-2">
-                          <p className="text-gray-600 flex items-center gap-2">
-                            <Mail size={16} className="text-gray-400" />
-                            <span>{user?.email || "No email provided"}</span>
-                          </p>
-                          <p className="text-gray-600 flex items-center gap-2">
-                            <Phone size={16} className="text-gray-400" />
-                            <span>{ "No phone provided"}</span>
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Address Section */}
-                  <div className="space-y-4">
-                    <div>
-                      <h5 className="font-semibold text-gray-700 flex items-center gap-2 mb-2">
-                        <MapPin size={18} className="text-orange-500" />
-                        <span>Address</span>
-                      </h5>
-                      {isEditing ? (
-                        <div className="space-y-3">
-                          <input
-                            type="text"
-                            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            defaultValue={ ""}
-                            placeholder="Street address"
-                          />
-                          <div className="grid grid-cols-2 gap-3">
-                            <input
-                              type="text"
-                              className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            
-                              placeholder="City"
-                            />
-                            <input
-                              type="text"
-                              className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                          
-                              placeholder="State"
-                            />
-                          </div>
-                          <div className="grid grid-cols-2 gap-3">
-                            <input
-                              type="text"
-                              className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            
-                              placeholder="Zip code"
-                            />
-                            <input
-                              type="text"
-                              className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            
-                              placeholder="Country"
-                            />
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="bg-gray-50 p-4 rounded-md">
-                          {user?.address ? (
-                            <div className="space-y-1">
-                              <p className="text-gray-600">
-                                { "No street provided"}
-                              </p>
-                              <p className="text-gray-600">
-                                {"No city"},{" "}
-                                { "No state"}{" "}
-                                { "No zip code"}
-                              </p>
-                              <p className="text-gray-600">
-                                { "No country provided"}
-                              </p>
-                            </div>
-                          ) : (
-                            <p className="text-gray-600">
-                              No address information available
-                            </p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    {isEditing && (
-                      <motion.div
-                        className="mt-6"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.2 }}
-                      >
-                        <motion.button
-                          className="w-full py-3 bg-orange-500 text-white rounded-md font-medium"
-                          whileHover={{ backgroundColor: "#ea580c" }}
-                          whileTap={{ scale: 0.98 }}
-                        >
-                          Save Changes
-                        </motion.button>
-                      </motion.div>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {activeTab === "activity" && (
-              <motion.div
-                key="activity"
-                className="col-span-12 bg-white rounded-lg shadow-md p-6"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <h4 className="text-lg font-semibold text-gray-700 mb-6">
-                  Activity & Statistics
-                </h4>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                  {userStats.map((stat, index) => (
-                    <motion.div
-                      key={stat.label}
-                      className="bg-gray-50 rounded-lg p-4 text-center"
-                      whileHover={{
-                        y: -5,
-                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                      }}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{
-                        opacity: 1,
-                        y: 0,
-                        transition: { delay: index * 0.1 },
-                      }}
-                    >
-                      <div className="flex justify-center mb-2 text-orange-500">
-                        {stat.icon}
-                      </div>
-                      <p className="text-2xl font-bold text-gray-800">
-                        {stat.value}
-                      </p>
-                      <p className="text-sm text-gray-500">{stat.label}</p>
-                    </motion.div>
-                  ))}
-                </div>
-
-               
-              </motion.div>
-            )}
-
-            {activeTab === "settings" && (
-              <motion.div
-                key="settings"
-                className="col-span-12 bg-white rounded-lg shadow-md p-6"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <h4 className="text-lg font-semibold text-gray-700 mb-6">
-                  Account Settings
-                </h4>
-
-                <div className="space-y-6">
-                  <div>
-                    <h5 className="font-medium text-gray-700 mb-3">
-                      Notification Preferences
-                    </h5>
-                    <div className="space-y-2">
-                      {[
-                        "Order updates",
-                        "Promotions and offers",
-                        "Account activity",
-                        "Product recommendations",
-                      ].map((item) => (
-                        <div key={item} className="flex items-center">
-                          <input
-                            type="checkbox"
-                            id={item.replace(/\s+/g, "-").toLowerCase()}
-                            className="rounded text-orange-500 focus:ring-orange-500 mr-2"
-                            defaultChecked
-                          />
-                          <label
-                            htmlFor={item.replace(/\s+/g, "-").toLowerCase()}
-                            className="text-gray-700"
-                          >
-                            {item}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h5 className="font-medium text-gray-700 mb-3">
-                      Privacy Settings
-                    </h5>
-                    <div className="space-y-2">
-                      {[
-                        "Show my profile to other users",
-                        "Allow search engines to index my profile",
-                        "Share my activity data",
-                      ].map((item) => (
-                        <div key={item} className="flex items-center">
-                          <input
-                            type="checkbox"
-                            id={item.replace(/\s+/g, "-").toLowerCase()}
-                            className="rounded text-orange-500 focus:ring-orange-500 mr-2"
-                            defaultChecked={
-                              item === "Show my profile to other users"
-                            }
-                          />
-                          <label
-                            htmlFor={item.replace(/\s+/g, "-").toLowerCase()}
-                            className="text-gray-700"
-                          >
-                            {item}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-gray-100">
-                    <motion.button
-                      className="px-4 py-2 bg-orange-500 text-white rounded-md font-medium"
-                      whileHover={{ backgroundColor: "#ea580c" }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      Save Settings
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+      {statsLoading ? (
+        <StatsRowSkeleton count={3} />
+      ) : (
+        <div className="grid grid-cols-3 gap-3 md:gap-4">
+          <StatCard
+            label="Orders"
+            value={stats.orders}
+            icon={<ShoppingBag size={18} />}
+            href="/account/order-history"
+          />
+          <StatCard
+            label="Wishlist"
+            value={stats.wishlist}
+            icon={<Heart size={18} />}
+            href="/account/wishlist"
+          />
+          <StatCard
+            label="Reviews"
+            value={stats.reviews}
+            icon={<Star size={18} />}
+            href="/account/order-history"
+          />
         </div>
-      </motion.div>
+      )}
+
+      <section className="rounded-2xl bg-white ring-1 ring-gray-100 shadow-[0_2px_20px_-10px_rgba(0,0,0,0.06)] p-6 md:p-8">
+        <header className="flex items-center justify-between mb-5">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">
+              Personal information
+            </h2>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Keep your details current so deliveries and notifications work
+              smoothly.
+            </p>
+          </div>
+        </header>
+
+        {profileLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full" />
+            ))}
+          </div>
+        ) : (
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="grid grid-cols-1 md:grid-cols-2 gap-5"
+          >
+            <Field label="Full name" icon={<User size={14} />}>
+              <input
+                type="text"
+                disabled={!isEditing || isPending}
+                {...register("name", { required: "Name is required" })}
+                className="w-full rounded-lg bg-gray-50 ring-1 ring-gray-200 disabled:bg-gray-50 disabled:text-gray-700 focus:ring-orange-300 focus:bg-white px-3 py-2.5 text-sm outline-none transition"
+              />
+              {formState.errors.name && (
+                <p className="text-xs text-rose-500 mt-1">
+                  {formState.errors.name.message as string}
+                </p>
+              )}
+            </Field>
+
+            <Field label="Email" icon={<Mail size={14} />}>
+              <input
+                type="email"
+                value={profile?.email ?? ""}
+                disabled
+                readOnly
+                className="w-full rounded-lg bg-gray-100 ring-1 ring-gray-200 text-gray-500 px-3 py-2.5 text-sm outline-none cursor-not-allowed"
+              />
+              <p className="text-[11px] text-gray-400 mt-1">
+                Email is tied to your login and can&apos;t be changed here.
+              </p>
+            </Field>
+
+            <Field label="Phone" icon={<Phone size={14} />}>
+              <input
+                type="tel"
+                placeholder="Add a contact number"
+                disabled={!isEditing || isPending}
+                {...register("phone")}
+                className="w-full rounded-lg bg-gray-50 ring-1 ring-gray-200 disabled:bg-gray-50 disabled:text-gray-700 focus:ring-orange-300 focus:bg-white px-3 py-2.5 text-sm outline-none transition"
+              />
+            </Field>
+
+            <Field label="Address" icon={<MapPin size={14} />}>
+              <input
+                type="text"
+                placeholder="Street, city, country"
+                disabled={!isEditing || isPending}
+                {...register("address")}
+                className="w-full rounded-lg bg-gray-50 ring-1 ring-gray-200 disabled:bg-gray-50 disabled:text-gray-700 focus:ring-orange-300 focus:bg-white px-3 py-2.5 text-sm outline-none transition"
+              />
+            </Field>
+
+            <div className="md:col-span-2">
+              <Field label="About me">
+                <textarea
+                  rows={4}
+                  placeholder="A short bio that other shoppers can see."
+                  disabled={!isEditing || isPending}
+                  {...register("description")}
+                  className="w-full rounded-lg bg-gray-50 ring-1 ring-gray-200 disabled:bg-gray-50 disabled:text-gray-700 focus:ring-orange-300 focus:bg-white px-3 py-2.5 text-sm outline-none transition resize-none"
+                />
+              </Field>
+            </div>
+
+            {isEditing && (
+              <div className="md:col-span-2 flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={cancel}
+                  disabled={isPending}
+                  className="inline-flex items-center gap-1.5 rounded-full ring-1 ring-gray-200 hover:ring-gray-300 hover:bg-gray-50 text-sm text-gray-700 px-4 py-2 transition disabled:opacity-50"
+                >
+                  <X size={14} />
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isPending}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-5 py-2 transition disabled:opacity-60"
+                >
+                  <Save size={14} />
+                  {isPending ? "Saving…" : "Save changes"}
+                </button>
+              </div>
+            )}
+          </form>
+        )}
+      </section>
+
+      <section className="rounded-2xl bg-white ring-1 ring-gray-100 p-6 md:p-8">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          Quick actions
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <ActionCard
+            href="/account/order-history"
+            icon={<ShoppingBag size={18} />}
+            title="Order history"
+            subtitle="Track and manage your purchases"
+          />
+          <ActionCard
+            href="/account/wishlist"
+            icon={<Heart size={18} />}
+            title="Wishlist"
+            subtitle="Items you saved for later"
+          />
+          <ActionCard
+            href="/account/change-password"
+            icon={<KeyRound size={18} />}
+            title="Change password"
+            subtitle="Keep your account secure"
+          />
+        </div>
+      </section>
     </div>
   );
 };
 
-export default UserHomePage;
+const Field = ({
+  label,
+  icon,
+  children,
+}: {
+  label: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+}) => (
+  <label className="block">
+    <span className="flex items-center gap-1.5 text-xs font-medium text-gray-600 mb-1.5">
+      {icon}
+      {label}
+    </span>
+    {children}
+  </label>
+);
 
+const StatCard = ({
+  label,
+  value,
+  icon,
+  href,
+}: {
+  label: string;
+  value: number;
+  icon: React.ReactNode;
+  href: string;
+}) => (
+  <Link
+    href={href}
+    className="group rounded-2xl bg-white ring-1 ring-gray-100 hover:ring-orange-200 hover:-translate-y-0.5 hover:shadow-[0_20px_40px_-25px_rgba(255,140,0,0.4)] p-4 md:p-5 transition-all"
+  >
+    <div className="flex items-center justify-between">
+      <span className="grid place-items-center h-9 w-9 rounded-full bg-orange-50 text-orange-500 ring-1 ring-orange-100">
+        {icon}
+      </span>
+      <span className="text-2xl md:text-3xl font-semibold text-gray-900 tabular-nums">
+        {value}
+      </span>
+    </div>
+    <p className="text-xs text-gray-500 mt-2 group-hover:text-orange-600 transition">
+      {label}
+    </p>
+  </Link>
+);
+
+const ActionCard = ({
+  href,
+  icon,
+  title,
+  subtitle,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+}) => (
+  <Link
+    href={href}
+    className="group flex items-start gap-3 rounded-xl bg-gray-50 hover:bg-orange-50 ring-1 ring-gray-100 hover:ring-orange-200 p-4 transition"
+  >
+    <span className="grid place-items-center h-9 w-9 rounded-full bg-white text-orange-500 ring-1 ring-orange-100">
+      {icon}
+    </span>
+    <div className="min-w-0">
+      <p className="text-sm font-medium text-gray-900 group-hover:text-orange-700 transition">
+        {title}
+      </p>
+      <p className="text-xs text-gray-500">{subtitle}</p>
+    </div>
+  </Link>
+);
+
+export default ProfilePage;
