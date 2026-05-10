@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@nextui-org/react";
-import { Star } from "lucide-react";
+import { Star, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useUser } from "@/src/context/user.provider";
 import { useAddReviewToProduct } from "@/src/hooks/review";
@@ -11,6 +11,8 @@ import type { IProduct } from "@/src/types";
 import { useQueryClient } from "@tanstack/react-query";
 
 type Props = { product: IProduct };
+
+type SortMode = "newest" | "highest" | "lowest";
 
 const ReviewsTab = ({ product }: Props) => {
   const { user } = useUser();
@@ -20,9 +22,29 @@ const ReviewsTab = ({ product }: Props) => {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
+  const [sortMode, setSortMode] = useState<SortMode>("newest");
+  const [starFilter, setStarFilter] = useState<number | null>(null);
 
   const reviews = product?.reviews ?? [];
   const reviewCount = reviews.length;
+
+  const visibleReviews = useMemo(() => {
+    let list = reviews;
+    if (starFilter !== null) {
+      list = list.filter((r) => r.rating === starFilter);
+    }
+    if (sortMode === "newest") {
+      list = [...list].sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
+    } else if (sortMode === "highest") {
+      list = [...list].sort((a, b) => b.rating - a.rating);
+    } else if (sortMode === "lowest") {
+      list = [...list].sort((a, b) => a.rating - b.rating);
+    }
+    return list;
+  }, [reviews, sortMode, starFilter]);
 
   const { avgRating, distribution } = useMemo(() => {
     if (reviewCount === 0) {
@@ -195,11 +217,80 @@ const ReviewsTab = ({ product }: Props) => {
       </div>
 
       <div className="lg:col-span-2">
-        <h3 className="text-lg font-medium mb-6">
-          {reviewCount === 0
-            ? "No Reviews Yet"
-            : `${reviewCount} Review${reviewCount === 1 ? "" : "s"}`}
-        </h3>
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-5">
+          <h3 className="text-lg font-medium">
+            {reviewCount === 0
+              ? "No Reviews Yet"
+              : `${reviewCount} Review${reviewCount === 1 ? "" : "s"}${
+                  starFilter !== null && visibleReviews.length !== reviewCount
+                    ? ` · showing ${visibleReviews.length} matching ${starFilter}★`
+                    : ""
+                }`}
+          </h3>
+          {reviewCount > 0 && (
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="reviews-sort"
+                className="text-xs text-gray-500"
+              >
+                Sort by
+              </label>
+              <select
+                id="reviews-sort"
+                value={sortMode}
+                onChange={(e) => setSortMode(e.target.value as SortMode)}
+                className="text-sm rounded-full bg-gray-50 ring-1 ring-gray-200 hover:ring-orange-300 px-3 py-1.5 focus:outline-none focus:ring-orange-400"
+              >
+                <option value="newest">Newest</option>
+                <option value="highest">Highest rated</option>
+                <option value="lowest">Lowest rated</option>
+              </select>
+            </div>
+          )}
+        </div>
+
+        {reviewCount > 0 && (
+          <div className="mb-5 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setStarFilter(null)}
+              className={`text-xs rounded-full px-3 py-1 transition ${
+                starFilter === null
+                  ? "bg-orange-500 text-white"
+                  : "bg-gray-50 text-gray-700 ring-1 ring-gray-200 hover:ring-orange-300"
+              }`}
+            >
+              All ({reviewCount})
+            </button>
+            {[5, 4, 3, 2, 1].map((star) => {
+              const count = reviews.filter((r) => r.rating === star).length;
+              if (count === 0) return null;
+              return (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setStarFilter(star)}
+                  className={`inline-flex items-center gap-1 text-xs rounded-full px-3 py-1 transition ${
+                    starFilter === star
+                      ? "bg-orange-500 text-white"
+                      : "bg-gray-50 text-gray-700 ring-1 ring-gray-200 hover:ring-orange-300"
+                  }`}
+                >
+                  {star}
+                  <Star
+                    size={11}
+                    className={
+                      starFilter === star
+                        ? "fill-white text-white"
+                        : "fill-amber-400 text-amber-400"
+                    }
+                  />
+                  ({count})
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {reviewCount === 0 ? (
           <div className="text-center py-12 bg-gray-50 rounded-lg">
@@ -221,9 +312,22 @@ const ReviewsTab = ({ product }: Props) => {
               Write a Review
             </Button>
           </div>
+        ) : visibleReviews.length === 0 ? (
+          <div className="text-center py-10 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-500">
+              No reviews match this filter.
+            </p>
+            <button
+              type="button"
+              onClick={() => setStarFilter(null)}
+              className="mt-3 text-xs text-orange-600 hover:underline"
+            >
+              Show all reviews
+            </button>
+          </div>
         ) : (
           <ul className="space-y-5">
-            {reviews.map((r) => (
+            {visibleReviews.map((r) => (
               <li
                 key={r.id}
                 className="rounded-lg border border-gray-100 bg-white p-5 shadow-[0_2px_10px_-8px_rgba(0,0,0,0.15)]"
@@ -234,11 +338,21 @@ const ReviewsTab = ({ product }: Props) => {
                       {(r.user?.name ?? "A").slice(0, 1).toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">
-                        {r.user?.name ?? "Anonymous"}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {new Date(r.createdAt).toLocaleDateString()}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm font-semibold text-gray-900">
+                          {r.user?.name ?? "Anonymous"}
+                        </p>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 text-[10px] font-medium px-2 py-0.5">
+                          <ShieldCheck size={11} />
+                          Verified purchase
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {new Date(r.createdAt).toLocaleDateString(undefined, {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
                       </p>
                     </div>
                   </div>
