@@ -54,8 +54,8 @@ const Search = ({
   const [activeIndex, setActiveIndex] = useState(-1);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
 
-  const debouncedTerm = useDebounced(term.trim(), 250);
-  const enabled = debouncedTerm.length >= 2;
+  const debouncedTerm = useDebounced(term.trim(), 200);
+  const enabled = debouncedTerm.length >= 1;
 
   const { data, isFetching } = useGetAllProducts(
     enabled ? [{ name: "searchTerm", value: debouncedTerm }, { name: "limit", value: 6 }] : [],
@@ -161,7 +161,7 @@ const Search = ({
       </div>
 
       {isOpen && (
-        <div className="absolute left-0 right-0 top-full mt-2 z-50 bg-white rounded-2xl shadow-[0_30px_60px_-30px_rgba(0,0,0,0.25)] ring-1 ring-gray-100 overflow-hidden">
+        <div className="absolute left-0 right-0 top-full mt-2 z-[70] bg-white rounded-2xl shadow-[0_30px_60px_-30px_rgba(0,0,0,0.25)] ring-1 ring-gray-100 overflow-hidden">
           {showRecent && (
             <div className="p-3 border-b border-gray-100">
               <div className="flex items-center justify-between mb-2">
