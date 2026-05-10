@@ -76,3 +76,36 @@ export const deleteMyOrder = async (id: string) => {
     return error.response.data;
   }
 };
+
+export const cancelMyOrder = async (id: string) => {
+  try {
+    const { data } = await AxiosSecure.patch(`/orders/my-order/${id}/cancel`);
+    return data;
+  } catch (error: any) {
+    return error.response.data;
+  }
+};
+
+export const requestOrderReturn = async (id: string) => {
+  try {
+    const { data } = await AxiosSecure.patch(`/orders/my-order/${id}/return`);
+    return data;
+  } catch (error: any) {
+    return error.response.data;
+  }
+};
+
+export const vendorAdvanceOrderStatus = async (payload: {
+  id: string;
+  status: string;
+}) => {
+  try {
+    const { data } = await AxiosSecure.patch(
+      `/orders/vendor/${payload.id}/status`,
+      { status: payload.status },
+    );
+    return data;
+  } catch (error: any) {
+    return error.response.data;
+  }
+};

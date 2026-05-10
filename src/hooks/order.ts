@@ -1,12 +1,15 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { IOrder, IOrderPayload, IResponse, TQueryParam } from "../types";
 import {
+  cancelMyOrder,
   createOrder,
   deleteMyOrder,
   getAllOrders,
   getMyOrders,
   getShopOrders,
+  requestOrderReturn,
   updateOrderStatus,
+  vendorAdvanceOrderStatus,
 } from "../services/Order";
 
 export const useCreateOrder = () => {
@@ -48,5 +51,23 @@ export const useDeleteMyOrder = () => {
   return useMutation<any, Error, string>({
     mutationKey: ["delete-my-order"],
     mutationFn: async (id) => await deleteMyOrder(id),
+  });
+};
+export const useCancelMyOrder = () => {
+  return useMutation<any, Error, string>({
+    mutationKey: ["cancel-my-order"],
+    mutationFn: async (id) => await cancelMyOrder(id),
+  });
+};
+export const useRequestOrderReturn = () => {
+  return useMutation<any, Error, string>({
+    mutationKey: ["return-my-order"],
+    mutationFn: async (id) => await requestOrderReturn(id),
+  });
+};
+export const useVendorAdvanceStatus = () => {
+  return useMutation<any, Error, { id: string; status: string }>({
+    mutationKey: ["vendor-advance-status"],
+    mutationFn: async (payload) => await vendorAdvanceOrderStatus(payload),
   });
 };

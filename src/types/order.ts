@@ -11,12 +11,22 @@ export interface IOrderPayload {
   saveAddressToProfile?: boolean;
 }
 
+export type IOrderStatus =
+  | "PENDING"
+  | "CONFIRMED"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "RETURN_REQUESTED"
+  | "RETURNED";
+
 export interface IOrder {
   id: string;
   transactionId: string;
   quantity: number;
   isPaid: boolean;
-  status: "PENDING" | "COMPLETED" | "CANCELLED";
+  status: IOrderStatus;
   userId: string;
   shopId: string;
   productId: string;
@@ -26,4 +36,7 @@ export interface IOrder {
   product: IProduct;
   isReviewed: boolean;
   discountedPrice?: number;
+  shippingName?: string;
+  shippingPhone?: string;
+  shippingAddress?: string;
 }
