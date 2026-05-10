@@ -4,9 +4,10 @@ import { Zap } from "lucide-react";
 import ProductCart from "@/src/components/UI/ProductCart/ProductCart";
 import { useGetAllProducts } from "@/src/hooks/product";
 import { useCountdown } from "@/src/hooks/useCountdown";
+import { ProductGridSkeleton } from "@/src/components/UI/Skeleton";
 
 const FlashSale = () => {
-  const { data: products } = useGetAllProducts([
+  const { data: products, isLoading } = useGetAllProducts([
     { name: "limit", value: 5 },
     { name: "isFlashSale", value: true },
   ]);
@@ -60,11 +61,19 @@ const FlashSale = () => {
           )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
-          {flashSaleProducts?.slice(0, 5).map((product) => (
-            <ProductCart key={product.id} product={product} />
-          ))}
-        </div>
+        {isLoading ? (
+          <ProductGridSkeleton count={5} />
+        ) : flashSaleProducts && flashSaleProducts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+            {flashSaleProducts.slice(0, 5).map((product) => (
+              <ProductCart key={product.id} product={product} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-sm text-gray-500 py-8">
+            No flash deals right now — check back soon.
+          </p>
+        )}
       </div>
     </section>
   );

@@ -1,66 +1,34 @@
-"use client";
+import {
+  ProductGridSkeleton,
+  SectionHeaderSkeleton,
+  Skeleton,
+} from "@/src/components/UI/Skeleton";
 
-import { motion } from "framer-motion";
-
-interface LoadingPulseProps {
-  color?: "primary" | "white" | "gray";
-  size?: "sm" | "md" | "lg";
-}
-
-const LoadingPulse = ({
-  color = "primary",
-  size = "md",
-}: LoadingPulseProps) => {
-  // Size mapping
-  const sizeMap = {
-    sm: "w-8 h-8",
-    md: "w-16 h-16",
-    lg: "w-24 h-24",
-  };
-
-  // Color mapping
-  const colorMap = {
-    primary: "bg-primary",
-    white: "bg-white",
-    gray: "bg-gray-600",
-  };
-
+export default function PublicLoading() {
   return (
-    <div className="relative">
-      <motion.div
-        className={`${sizeMap[size]} ${colorMap[color]} rounded-full opacity-20`}
-        initial={{ opacity: 0.2, scale: 0.8 }}
-        animate={{ opacity: [0.2, 0.4, 0.2], scale: [0.8, 1.2, 0.8] }}
-        transition={{
-          duration: 2,
-          repeat: Number.POSITIVE_INFINITY,
-          ease: "easeInOut",
-        }}
-      />
-      <motion.div
-        className={`absolute inset-0 ${colorMap[color]} rounded-full opacity-40`}
-        initial={{ opacity: 0.4, scale: 0.6 }}
-        animate={{ opacity: [0.4, 0.7, 0.4], scale: [0.6, 1, 0.6] }}
-        transition={{
-          duration: 2,
-          repeat: Number.POSITIVE_INFINITY,
-          ease: "easeInOut",
-          delay: 0.3,
-        }}
-      />
-      <motion.div
-        className={`absolute inset-0 ${colorMap[color]} rounded-full`}
-        initial={{ scale: 0.4 }}
-        animate={{ scale: [0.4, 0.8, 0.4] }}
-        transition={{
-          duration: 2,
-          repeat: Number.POSITIVE_INFINITY,
-          ease: "easeInOut",
-          delay: 0.6,
-        }}
-      />
+    <div className="min-h-screen">
+      <div className="container mx-auto px-4 py-10 space-y-12">
+        <div className="rounded-3xl bg-gradient-to-br from-orange-50 to-amber-50 p-10 md:p-14 ring-1 ring-orange-100/60">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+            <div className="space-y-5">
+              <Skeleton className="h-5 w-28" rounded="full" />
+              <Skeleton className="h-12 w-full max-w-md" />
+              <Skeleton className="h-4 w-full max-w-sm" />
+              <Skeleton className="h-4 w-3/4 max-w-sm" />
+              <div className="flex gap-3 pt-2">
+                <Skeleton className="h-12 w-36" rounded="full" />
+                <Skeleton className="h-12 w-32" rounded="full" />
+              </div>
+            </div>
+            <Skeleton className="aspect-[4/3] w-full" rounded="2xl" />
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <SectionHeaderSkeleton />
+          <ProductGridSkeleton count={5} />
+        </div>
+      </div>
     </div>
   );
-};
-
-export default LoadingPulse;
+}

@@ -17,6 +17,14 @@ export default {
         primary: " #FFA500",
         secondary: "#2b2d42",
       },
+      keyframes: {
+        shimmer: {
+          "100%": { transform: "translateX(100%)" },
+        },
+      },
+      animation: {
+        shimmer: "shimmer 1.6s infinite",
+      },
     },
   },
 

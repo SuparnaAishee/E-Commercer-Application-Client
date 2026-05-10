@@ -9,6 +9,7 @@ import { Pagination } from "@nextui-org/react";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
+import { OrderListSkeleton } from "@/src/components/UI/Skeleton";
 
 const OrderHistory = () => {
   const [page, setPage] = useState(1);
@@ -33,6 +34,15 @@ const OrderHistory = () => {
 
   return (
     <div className="col-span-12 lg:col-span-9">
+      {isLoading && <OrderListSkeleton count={4} />}
+      {!isLoading && (data?.data?.length ?? 0) === 0 && (
+        <div className="text-center py-16 bg-white rounded-xl ring-1 ring-gray-100">
+          <p className="text-gray-700 font-medium">No orders yet</p>
+          <p className="text-sm text-gray-500 mt-1">
+            Your purchases will appear here.
+          </p>
+        </div>
+      )}
       {data?.data?.map((order) => {
         return (
           <div

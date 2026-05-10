@@ -4,9 +4,11 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { useGetAllShop } from "@/src/hooks/shop";
+import { ShopGridSkeleton } from "@/src/components/UI/Skeleton";
 
 const FeaturedShops = () => {
-  const { data: shops } = useGetAllShop([]);
+  const { data: shops, isLoading } = useGetAllShop([]);
+  const activeShops = shops?.data?.filter((shop) => shop.status === "ACTIVE") ?? [];
 
   return (
     <section className="py-12 md:py-16 px-4 md:px-6 lg:px-8 bg-gradient-to-b from-white to-orange-50/30">
@@ -23,9 +25,11 @@ const FeaturedShops = () => {
           </p>
         </div>
 
+        {isLoading ? (
+          <ShopGridSkeleton count={5} />
+        ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5">
-          {shops?.data
-            ?.filter((shop) => shop.status === "ACTIVE")
+          {activeShops
             .slice(0, 10)
             .map((shop, i) => (
               <motion.div
@@ -61,6 +65,7 @@ const FeaturedShops = () => {
               </motion.div>
             ))}
         </div>
+        )}
       </div>
     </section>
   );

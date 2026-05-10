@@ -18,7 +18,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import { TbFidgetSpinner } from "react-icons/tb";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
-import LoadingSpinner from "../loading";
+import { OrderListSkeleton } from "@/src/components/UI/Skeleton";
 
 const Wishlist = () => {
   const [page, setPage] = useState(1);
@@ -114,7 +114,7 @@ const Wishlist = () => {
 
   return (
     <div className="col-span-12 lg:col-span-9">
-      {isLoading && <LoadingSpinner />}
+      {isLoading && <OrderListSkeleton count={3} />}
       {data?.data?.map((wishlist) => {
         return (
           <div

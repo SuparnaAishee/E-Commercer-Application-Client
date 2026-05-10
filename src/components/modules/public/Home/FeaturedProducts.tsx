@@ -4,9 +4,12 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import ProductCart from "@/src/components/UI/ProductCart/ProductCart";
 import { useGetAllProducts } from "@/src/hooks/product";
+import { ProductGridSkeleton } from "@/src/components/UI/Skeleton";
 
 const FeaturedProducts = () => {
-  const { data: products } = useGetAllProducts([]);
+  const { data: products, isLoading } = useGetAllProducts([
+    { name: "limit", value: 10 },
+  ]);
 
   return (
     <section className="py-12 md:py-16 px-4 md:px-6 lg:px-8">
@@ -23,11 +26,15 @@ const FeaturedProducts = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
-          {products?.data?.slice(0, 10).map((product) => (
-            <ProductCart key={product.id} product={product} />
-          ))}
-        </div>
+        {isLoading ? (
+          <ProductGridSkeleton count={10} />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+            {products?.data?.slice(0, 10).map((product) => (
+              <ProductCart key={product.id} product={product} />
+            ))}
+          </div>
+        )}
 
         <div className="text-center pt-10">
           <Link

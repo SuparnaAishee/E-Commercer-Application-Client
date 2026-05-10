@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useProduct } from "@/src/context/product.provider";
 import { useGetAllCategory } from "@/src/hooks/category";
 import { useGetAllProducts } from "@/src/hooks/product";
+import { ProductCardSkeleton } from "@/src/components/UI/Skeleton";
 
 import {
   Button,
@@ -475,18 +476,8 @@ const ProductPage = () => {
           {/* Products Grid */}
           {productsLoading ? (
             <div className={`grid ${getGridClasses()}`}>
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div
-                  key={i}
-                  className="bg-white rounded-xl shadow-sm overflow-hidden"
-                >
-                  <div className="aspect-square bg-gray-200 animate-pulse"></div>
-                  <div className="p-4 space-y-3">
-                    <div className="h-4 bg-gray-200 animate-pulse rounded-md"></div>
-                    <div className="h-6 bg-gray-200 animate-pulse rounded-md w-1/2"></div>
-                    <div className="h-10 bg-gray-200 animate-pulse rounded-md"></div>
-                  </div>
-                </div>
+              {Array.from({ length: 8 }).map((_, i) => (
+                <ProductCardSkeleton key={i} />
               ))}
             </div>
           ) : products?.data && products?.data?.length > 0 ? (
