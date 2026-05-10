@@ -30,7 +30,7 @@ type ProductInfoProps = {
 };
 
 const ProductInfo = ({ product }: ProductInfoProps) => {
-  const { user } = useUser();
+  const { user, setCartOpen } = useUser();
   const router = useRouter();
   const { refetch: refetchCart } = useGetMyCartProducts();
   const { mutate: addToCart, isPending: isAddingToCart } = useAddToCart();
@@ -68,9 +68,9 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
           if (data?.success) {
             refetchCart();
             setIsAddedToCart(true);
-            toast.success(data?.message);
             setTimeout(() => setIsAddedToCart(false), 2000);
-            onAdded?.();
+            if (onAdded) onAdded();
+            else setCartOpen(true);
           } else {
             toast.error(data?.message);
           }

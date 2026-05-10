@@ -17,7 +17,7 @@ import { useQueryClient } from "@tanstack/react-query";
 const ProductCart = ({ product }: { product: IProduct }) => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user, setShowCompareModal } = useUser();
+  const { user, setShowCompareModal, setCartOpen } = useUser();
   const { data: comparisons, refetch: refetchComparison } =
     useGetMyComparison();
   const { mutate: addToCompare } = useCreateCompare();
@@ -66,7 +66,7 @@ const ProductCart = ({ product }: { product: IProduct }) => {
               onSuccess(data) {
                 if (data?.success) {
                   refetchCart();
-                  toast.success(data?.message);
+                  setCartOpen(true);
                 } else {
                   toast.error(data?.message);
                 }
@@ -85,7 +85,7 @@ const ProductCart = ({ product }: { product: IProduct }) => {
           onSuccess(data) {
             if (data?.success) {
               refetchCart();
-              toast.success(data?.message);
+              setCartOpen(true);
             } else {
               toast.error(data?.message);
             }

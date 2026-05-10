@@ -14,6 +14,7 @@ import Wishlist from "./wishlist";
 import Compare from "./Compare";
 import Comparison from "@/src/components/modal/Comparison";
 import Search from "./Search";
+import CartDrawer from "./CartDrawer";
 
 const NAV_LINKS = [
   { name: "Home", path: "/" },
@@ -131,6 +132,7 @@ const MainHeader = () => {
                   <AccountDropdown />
                 </div>
                 <Comparison />
+                <CartDrawer />
               </div>
             ) : (
               <div className="flex items-center space-x-4">
