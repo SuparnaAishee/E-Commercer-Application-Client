@@ -5,6 +5,10 @@ export interface IOrderPayload {
   productId: string;
   quantity: number;
   coupon?: string;
+  shippingName?: string;
+  shippingPhone?: string;
+  shippingAddress?: string;
+  saveAddressToProfile?: boolean;
 }
 
 export interface IOrder {

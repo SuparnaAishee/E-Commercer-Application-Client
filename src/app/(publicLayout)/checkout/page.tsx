@@ -187,12 +187,14 @@
 import { useGetMyCartProducts } from "@/src/hooks/cart";
 import { useValidateCoupon } from "@/src/hooks/coupon";
 import { useCreateOrder } from "@/src/hooks/order";
+import { useGetMyProfile } from "@/src/hooks/profile";
 import type { ICart } from "@/src/types";
 import { calculateDiscount } from "@/src/utils/calculateDiscount";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { MapPin, Pencil, Phone, User, Check } from "lucide-react";
 
 const CheckoutPage = () => {
   const [code, setCode] = useState("");
@@ -205,6 +207,27 @@ const CheckoutPage = () => {
   const router = useRouter();
   const { mutate: createOrder } = useCreateOrder();
   const { data } = useGetMyCartProducts();
+  const { data: profileData } = useGetMyProfile();
+  const profile = profileData?.data;
+
+  // Shipping form state — seeded from profile, editable inline.
+  const [shippingName, setShippingName] = useState("");
+  const [shippingPhone, setShippingPhone] = useState("");
+  const [shippingAddress, setShippingAddress] = useState("");
+  const [editingAddress, setEditingAddress] = useState(false);
+  const [saveAddressToProfile, setSaveAddressToProfile] = useState(true);
+
+  useEffect(() => {
+    if (!profile) return;
+    setShippingName((prev) => prev || profile.name || "");
+    setShippingPhone((prev) => prev || profile.phone || "");
+    setShippingAddress((prev) => prev || profile.address || "");
+    if (!profile.address) setEditingAddress(true);
+  }, [profile]);
+
+  const hasShipping = Boolean(
+    shippingName.trim() && shippingAddress.trim() && shippingPhone.trim(),
+  );
 
   useEffect(() => {
     if (data?.data) {
@@ -232,11 +255,20 @@ const CheckoutPage = () => {
   }
 
   const handleCreateOrder = (cart: ICart[]) => {
+    if (!hasShipping) {
+      toast.error("Please confirm your shipping address before checkout");
+      setEditingAddress(true);
+      return;
+    }
     setIsCheckingOut(true);
     const payload = cart?.map((ct) => ({
       coupon,
       quantity: quantities[ct.id] || ct.quantity,
       productId: ct.productId,
+      shippingName: shippingName.trim(),
+      shippingPhone: shippingPhone.trim(),
+      shippingAddress: shippingAddress.trim(),
+      saveAddressToProfile,
     }));
     createOrder(payload, {
       onSuccess(data) {
@@ -297,12 +329,113 @@ const CheckoutPage = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-8 py-14 bg-white to-white pl-12 pr-16">
-      <div className="lg:col-span-8">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center">
-         
-          Your Shopping Cart
+    <div className="container mx-auto px-4 md:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 py-10 md:py-14">
+      <div className="lg:col-span-8 space-y-6">
+        <h2 className="text-2xl font-semibold tracking-tight text-gray-900">
+          Your shopping cart
         </h2>
+
+        <section className="rounded-2xl bg-white ring-1 ring-gray-100 p-5 md:p-6 shadow-[0_2px_20px_-15px_rgba(0,0,0,0.08)]">
+          <header className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <span className="grid place-items-center h-9 w-9 rounded-full bg-orange-50 text-orange-500 ring-1 ring-orange-100">
+                <MapPin size={16} />
+              </span>
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900">
+                  Delivery address
+                </h3>
+                <p className="text-[11px] text-gray-500">
+                  Where should we send this order?
+                </p>
+              </div>
+            </div>
+            {!editingAddress && (
+              <button
+                type="button"
+                onClick={() => setEditingAddress(true)}
+                className="inline-flex items-center gap-1 text-xs font-medium text-orange-600 hover:text-orange-700"
+              >
+                <Pencil size={12} />
+                Edit
+              </button>
+            )}
+          </header>
+
+          {editingAddress ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <label className="block">
+                <span className="flex items-center gap-1.5 text-[11px] font-medium text-gray-600 mb-1">
+                  <User size={11} />
+                  Recipient name
+                </span>
+                <input
+                  type="text"
+                  value={shippingName}
+                  onChange={(e) => setShippingName(e.target.value)}
+                  placeholder="Full name"
+                  className="w-full rounded-lg bg-gray-50 ring-1 ring-gray-200 focus:ring-orange-300 focus:bg-white px-3 py-2.5 text-sm outline-none transition"
+                />
+              </label>
+              <label className="block">
+                <span className="flex items-center gap-1.5 text-[11px] font-medium text-gray-600 mb-1">
+                  <Phone size={11} />
+                  Phone
+                </span>
+                <input
+                  type="tel"
+                  value={shippingPhone}
+                  onChange={(e) => setShippingPhone(e.target.value)}
+                  placeholder="01700000000"
+                  className="w-full rounded-lg bg-gray-50 ring-1 ring-gray-200 focus:ring-orange-300 focus:bg-white px-3 py-2.5 text-sm outline-none transition"
+                />
+              </label>
+              <label className="block md:col-span-2">
+                <span className="flex items-center gap-1.5 text-[11px] font-medium text-gray-600 mb-1">
+                  <MapPin size={11} />
+                  Full address
+                </span>
+                <textarea
+                  rows={2}
+                  value={shippingAddress}
+                  onChange={(e) => setShippingAddress(e.target.value)}
+                  placeholder="Street, area, city, postal code"
+                  className="w-full rounded-lg bg-gray-50 ring-1 ring-gray-200 focus:ring-orange-300 focus:bg-white px-3 py-2.5 text-sm outline-none transition resize-none"
+                />
+              </label>
+              <label className="md:col-span-2 inline-flex items-center gap-2 cursor-pointer text-xs text-gray-600">
+                <input
+                  type="checkbox"
+                  checked={saveAddressToProfile}
+                  onChange={(e) => setSaveAddressToProfile(e.target.checked)}
+                  className="h-3.5 w-3.5 rounded text-orange-500 focus:ring-orange-500"
+                />
+                Save this as my default address
+              </label>
+              <div className="md:col-span-2 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setEditingAddress(false)}
+                  disabled={!hasShipping}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white text-sm font-medium px-5 py-2 transition"
+                >
+                  <Check size={14} />
+                  Confirm address
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-xl bg-gray-50 ring-1 ring-gray-100 p-4 text-sm space-y-1">
+              <p className="font-semibold text-gray-900">
+                {shippingName || "—"}
+              </p>
+              <p className="text-gray-600">{shippingPhone || "No phone"}</p>
+              <p className="text-gray-600">
+                {shippingAddress || "No address on file"}
+              </p>
+            </div>
+          )}
+        </section>
 
         <div className="bg-white rounded shadow-lg overflow-hidden border border-orange-100">
           <div className="bg-gray-200 px-6 py-4 text-black font-medium text-lg">
@@ -510,11 +643,24 @@ const CheckoutPage = () => {
               )}
             </div>
 
+            {!hasShipping && (
+              <p className="mt-6 text-xs text-amber-700 bg-amber-50 ring-1 ring-amber-100 rounded-md px-3 py-2">
+                Confirm your delivery address above to enable checkout.
+              </p>
+            )}
             <button
               onClick={() => handleCreateOrder(data?.data as ICart[])}
-              disabled={!data?.data || data?.data.length === 0 || isCheckingOut}
-              className={`w-full py-4 mt-8 bg-gray-200 text-black rounded-md uppercase text-sm font-bold tracking-wider transition-all transform hover:translate-y-[-2px] ${
-                !data?.data || data?.data.length === 0 || isCheckingOut
+              disabled={
+                !data?.data ||
+                data?.data.length === 0 ||
+                isCheckingOut ||
+                !hasShipping
+              }
+              className={`w-full py-4 mt-4 bg-gray-200 text-black rounded-md uppercase text-sm font-bold tracking-wider transition-all transform hover:translate-y-[-2px] ${
+                !data?.data ||
+                data?.data.length === 0 ||
+                isCheckingOut ||
+                !hasShipping
                   ? "opacity-50 cursor-not-allowed"
                   : "shadow-lg hover:shadow-xl"
               }`}
