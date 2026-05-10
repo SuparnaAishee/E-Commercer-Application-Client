@@ -233,72 +233,101 @@ const ProductPage = () => {
       ? selectedCategory
       : "All products";
 
+  // Slot a featured promo card after the 6th product in the grid (before pagination)
+  const FEATURED_AT = 6;
+  const productsBefore = visibleProducts.slice(0, FEATURED_AT);
+  const productsAfter = visibleProducts.slice(FEATURED_AT);
+  const featuredItem = visibleProducts[0];
+  const showFeatureBand =
+    !productsLoading && visibleProducts.length > FEATURED_AT && featuredItem;
+
   return (
     <div className="container mx-auto px-4 md:px-8 py-8 md:py-12">
-      <header className="mb-6 md:mb-8">
-        <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-gray-900">
-          {pageTitle}
-        </h1>
-        <p className="text-sm text-gray-500 mt-1">
-          {productsLoading
-            ? "Loading…"
-            : `${totalProducts} ${totalProducts === 1 ? "product" : "products"} across our shops`}
-        </p>
-      </header>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+        {/* Editorial title rail (left) */}
+        <aside className="lg:col-span-4 xl:col-span-3">
+          <div className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto pb-4 pr-1">
+            <div className="mb-7">
+              <p className="flex items-center gap-2 text-[11px] font-medium tracking-[0.18em] uppercase text-orange-600 mb-3">
+                <span className="h-1.5 w-1.5 rounded-full bg-orange-500" />
+                {urlSearchTerm
+                  ? "Search"
+                  : selectedCategory
+                    ? "Category"
+                    : "Catalogue"}
+              </p>
+              <h1 className="text-[2.25rem] md:text-[2.75rem] leading-[1.05] font-semibold tracking-tight text-gray-900">
+                {pageTitle}
+                <span className="text-orange-500">.</span>
+              </h1>
+              <p className="text-sm text-gray-500 mt-3 max-w-xs">
+                {productsLoading
+                  ? "Pulling the catalogue together…"
+                  : `${totalProducts} ${
+                      totalProducts === 1 ? "product" : "products"
+                    } picked across our partner shops, ready to ship today.`}
+              </p>
+              <div className="mt-5 flex items-center gap-3 text-[11px] tabular-nums text-gray-500">
+                <span className="font-medium text-gray-900">
+                  {String(currentPage).padStart(2, "0")}
+                </span>
+                <span className="h-px flex-1 bg-gray-200" />
+                <span>
+                  {String(totalPages).padStart(2, "0")}
+                </span>
+              </div>
+            </div>
 
-      {activeChips.length > 0 && (
-        <div className="mb-5 flex flex-wrap items-center gap-2">
-          <span className="text-xs font-medium text-gray-500 mr-1">
-            Filtering by:
-          </span>
-          {activeChips.map((chip) => (
-            <button
-              key={chip.key}
-              type="button"
-              onClick={chip.clear}
-              className="inline-flex items-center gap-1 rounded-full bg-orange-50 text-orange-700 ring-1 ring-orange-100 hover:bg-orange-100 text-xs font-medium px-3 py-1 transition"
-            >
-              {chip.label}
-              <X size={11} />
-            </button>
-          ))}
-          <button
-            type="button"
-            onClick={handleResetFilters}
-            className="text-xs text-gray-500 hover:text-orange-600 underline-offset-2 hover:underline ml-1"
-          >
-            Clear all
-          </button>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-        {/* Sidebar (desktop) */}
-        <aside className="hidden lg:block lg:col-span-3">
-          <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-2xl bg-white ring-1 ring-gray-100 p-5 shadow-[0_2px_20px_-15px_rgba(0,0,0,0.08)]">
-            <h2 className="text-sm font-semibold text-gray-900 mb-4">
-              Filters
-            </h2>
-            <FilterPanel
-              categories={categories?.data}
-              categoriesLoading={categoriesLoading}
-              selectedCategory={selectedCategory}
-              onCategoryChange={handleCategoryChange}
-              priceRange={priceRange}
-              onPriceRangeChange={handlePriceRangeChange}
-              inStockOnly={inStockOnly}
-              onInStockChange={setInStockOnly}
-              minRating={minRating}
-              onMinRatingChange={setMinRating}
-              onReset={handleResetFilters}
-            />
+            <div className="hidden lg:block rounded-2xl bg-white ring-1 ring-gray-100 p-5 shadow-[0_2px_20px_-15px_rgba(0,0,0,0.08)]">
+              <h2 className="text-[10px] font-semibold tracking-[0.2em] uppercase text-gray-500 mb-4">
+                Refine
+              </h2>
+              <FilterPanel
+                categories={categories?.data}
+                categoriesLoading={categoriesLoading}
+                selectedCategory={selectedCategory}
+                onCategoryChange={handleCategoryChange}
+                priceRange={priceRange}
+                onPriceRangeChange={handlePriceRangeChange}
+                inStockOnly={inStockOnly}
+                onInStockChange={setInStockOnly}
+                minRating={minRating}
+                onMinRatingChange={setMinRating}
+                onReset={handleResetFilters}
+              />
+            </div>
           </div>
         </aside>
 
         {/* Main */}
-        <main className="lg:col-span-9">
+        <main className="lg:col-span-8 xl:col-span-9 min-w-0">
+          {activeChips.length > 0 && (
+            <div className="mb-5 flex flex-wrap items-center gap-2">
+              <span className="text-[10px] font-semibold tracking-[0.18em] uppercase text-gray-500 mr-1">
+                Filters
+              </span>
+              {activeChips.map((chip) => (
+                <button
+                  key={chip.key}
+                  type="button"
+                  onClick={chip.clear}
+                  className="inline-flex items-center gap-1 rounded-full bg-orange-50 text-orange-700 ring-1 ring-orange-100 hover:bg-orange-100 text-xs font-medium px-3 py-1 transition"
+                >
+                  {chip.label}
+                  <X size={11} />
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="text-xs text-gray-500 hover:text-orange-600 underline-offset-2 hover:underline ml-1"
+              >
+                Clear all
+              </button>
+            </div>
+          )}
           {/* Toolbar */}
-          <div className="flex flex-wrap items-center gap-3 bg-white rounded-2xl ring-1 ring-gray-100 px-4 py-3 mb-5">
+          <div className="flex flex-wrap items-center gap-3 border-y border-gray-100 py-3 mb-6">
             <Button
               size="sm"
               variant="flat"
@@ -393,14 +422,65 @@ const ProductPage = () => {
             </div>
           ) : visibleProducts.length > 0 ? (
             <motion.div
-              className={`grid ${gridClasses}`}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25 }}
+              className="space-y-6"
             >
-              {visibleProducts.map((product) => (
-                <ProductCart key={product.id} product={product} />
-              ))}
+              <div className={`grid ${gridClasses}`}>
+                {productsBefore.map((product) => (
+                  <ProductCart key={product.id} product={product} />
+                ))}
+              </div>
+
+              {showFeatureBand && (
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-gray-900 to-orange-700 text-white p-6 md:p-8">
+                  <div className="absolute -top-24 -right-16 h-72 w-72 rounded-full bg-orange-500/30 blur-3xl pointer-events-none" />
+                  <div className="absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-amber-400/20 blur-3xl pointer-events-none" />
+                  <div className="relative grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 items-center">
+                    <div className="space-y-2 max-w-md">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 ring-1 ring-white/20 backdrop-blur text-[10px] font-medium tracking-[0.18em] uppercase px-3 py-1">
+                        Editor&apos;s pick
+                      </span>
+                      <h3 className="text-xl md:text-2xl font-semibold tracking-tight leading-tight">
+                        {featuredItem.name}
+                      </h3>
+                      <p className="text-sm text-white/70 line-clamp-2">
+                        {featuredItem.description ??
+                          "A standout from this set — picked for build quality and reviews."}
+                      </p>
+                      <div className="flex items-center gap-3 pt-1">
+                        <span className="text-2xl font-semibold tabular-nums">
+                          ${featuredItem.price.toFixed(2)}
+                        </span>
+                        <a
+                          href={`/products/${featuredItem.id}`}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-white text-gray-900 hover:bg-orange-100 text-sm font-medium px-4 py-2 transition"
+                        >
+                          View product
+                        </a>
+                      </div>
+                    </div>
+                    {featuredItem.images?.[0] && (
+                      <div className="hidden md:block w-40 h-40 lg:w-48 lg:h-48 rounded-2xl overflow-hidden ring-4 ring-white/20 shadow-2xl">
+                        <img
+                          src={featuredItem.images[0]}
+                          alt={featuredItem.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {productsAfter.length > 0 && (
+                <div className={`grid ${gridClasses}`}>
+                  {productsAfter.map((product) => (
+                    <ProductCart key={product.id} product={product} />
+                  ))}
+                </div>
+              )}
             </motion.div>
           ) : (
             <div className="rounded-2xl bg-white ring-1 ring-gray-100 p-12 text-center">
