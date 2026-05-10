@@ -86,6 +86,8 @@ interface IUserContext {
   setShowCompareModal: Dispatch<SetStateAction<boolean>>;
   cartOpen: boolean;
   setCartOpen: Dispatch<SetStateAction<boolean>>;
+  chatOpen: boolean;
+  setChatOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 const UserProvider = ({
@@ -97,6 +99,7 @@ const UserProvider = ({
 }) => {
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const [isUserLoading, setIsUserLoading] = useState(false);
   const [user, setUser] = useState<IUser | null>(initialUser);
 
@@ -121,6 +124,8 @@ const UserProvider = ({
         setShowCompareModal,
         cartOpen,
         setCartOpen,
+        chatOpen,
+        setChatOpen,
       }}
     >
       {children}

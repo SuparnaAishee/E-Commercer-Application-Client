@@ -5,15 +5,13 @@ import type React from "react";
 
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useUser } from "@/src/context/user.provider";
 
 export default function SupportPage() {
+  const { setChatOpen } = useUser();
+  const openChat = () => setChatOpen(true);
   const [activeTab, setActiveTab] = useState("help");
   const [searchQuery, setSearchQuery] = useState("");
-  const [showChat, setShowChat] = useState(false);
-  const [chatMessages, setChatMessages] = useState<
-    { type: string; message: string }[]
-  >([{ type: "bot", message: "Hello! How can I help you today?" }]);
-  const [messageInput, setMessageInput] = useState("");
   const [ticketForm, setTicketForm] = useState({
     name: "",
     email: "",
@@ -23,7 +21,6 @@ export default function SupportPage() {
   });
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState({ title: "", message: "" });
-  const chatEndRef = useRef<HTMLDivElement>(null);
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // FAQ state
@@ -197,13 +194,6 @@ export default function SupportPage() {
     setFilteredFaqs(filtered);
   }, [faqSearchQuery]);
 
-  // Auto-scroll chat to bottom when new messages are added
-  useEffect(() => {
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [chatMessages]);
-
   const toggleFaq = (faqId: string) => {
     setExpandedFaqs((prev) => ({
       ...prev,
@@ -236,81 +226,6 @@ export default function SupportPage() {
       subject: "",
       message: "",
     });
-  };
-
-  const handleChatSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!messageInput.trim()) return;
-
-    // Add user message
-    const userMessage = messageInput.trim();
-    setChatMessages((prev) => [
-      ...prev,
-      { type: "user", message: userMessage },
-    ]);
-    setMessageInput("");
-
-    // Simulate bot response after a short delay
-    setTimeout(() => {
-      // Simple keyword-based response system
-      const lowerCaseMessage = userMessage.toLowerCase();
-      let botResponse =
-        "I'm not sure I understand. Could you please provide more details or try asking about orders, shipping, returns, or products?";
-
-      if (
-        lowerCaseMessage.includes("order") ||
-        lowerCaseMessage.includes("tracking")
-      ) {
-        botResponse =
-          "You can track your order by logging into your account and visiting the 'Order History' section. If you need more help with your order, please provide your order number.";
-      } else if (
-        lowerCaseMessage.includes("return") ||
-        lowerCaseMessage.includes("refund")
-      ) {
-        botResponse =
-          "Our return policy allows returns within 30 days of purchase. To initiate a return, go to your order history and select 'Return Item'. Would you like me to guide you through the process?";
-      } else if (
-        lowerCaseMessage.includes("shipping") ||
-        lowerCaseMessage.includes("delivery")
-      ) {
-        botResponse =
-          "Standard shipping takes 3-5 business days. Express shipping is available for 1-2 day delivery. International shipping may take 7-14 days depending on the destination.";
-      } else if (
-        lowerCaseMessage.includes("payment") ||
-        lowerCaseMessage.includes("card")
-      ) {
-        botResponse =
-          "We accept all major credit cards, PayPal, Apple Pay, and Google Pay. Your payment information is securely encrypted. Is there a specific payment issue you're experiencing?";
-      } else if (
-        lowerCaseMessage.includes("hello") ||
-        lowerCaseMessage.includes("hi") ||
-        lowerCaseMessage.includes("hey")
-      ) {
-        botResponse =
-          "Hello! How can I help you today? Feel free to ask about orders, returns, products, or account issues.";
-      } else if (lowerCaseMessage.includes("thank")) {
-        botResponse =
-          "You're welcome! Is there anything else I can help you with today?";
-      } else if (
-        lowerCaseMessage.includes("product") ||
-        lowerCaseMessage.includes("item")
-      ) {
-        botResponse =
-          "We have a wide range of products available. For specific product questions, please provide the product name or category you're interested in.";
-      } else if (
-        lowerCaseMessage.includes("account") ||
-        lowerCaseMessage.includes("login") ||
-        lowerCaseMessage.includes("password")
-      ) {
-        botResponse =
-          "For account issues, you can reset your password through the 'Forgot Password' link on the login page. If you're having trouble accessing your account, please provide more details.";
-      }
-
-      setChatMessages((prev) => [
-        ...prev,
-        { type: "bot", message: botResponse },
-      ]);
-    }, 1000);
   };
 
   const showToastNotification = (title: string, message: string) => {
@@ -371,92 +286,6 @@ export default function SupportPage() {
         </div>
       )}
 
-      {/* Live Chat Widget */}
-      {showChat && (
-        <div className="fixed bottom-20 right-4 z-40 w-80 sm:w-96 bg-white rounded-lg shadow-xl border border-gray-200 flex flex-col h-96">
-          <div className="bg-orange-600 text-white p-4 rounded-t-lg flex justify-between items-center">
-            <h3 className="font-medium">Live Chat Support</h3>
-            <button
-              onClick={() => setShowChat(false)}
-              className="text-white hover:text-gray-200 focus:outline-none"
-            >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-          <div className="flex-1 p-4 overflow-y-auto">
-            {chatMessages.map((msg, index) => (
-              <div
-                key={index}
-                className={`mb-3 ${msg.type === "user" ? "text-right" : "text-left"}`}
-              >
-                <div
-                  className={`inline-block rounded-lg px-4 py-2 max-w-[80%] ${
-                    msg.type === "user"
-                      ? "bg-orange-600 text-white"
-                      : "bg-gray-100 text-gray-800"
-                  }`}
-                >
-                  {msg.message}
-                </div>
-              </div>
-            ))}
-            <div ref={chatEndRef} />
-          </div>
-          <form
-            onSubmit={handleChatSubmit}
-            className="border-t border-gray-200 p-4"
-          >
-            <div className="flex">
-              <input
-                type="text"
-                value={messageInput}
-                onChange={(e) => setMessageInput(e.target.value)}
-                placeholder="Type your message..."
-                className="flex-1 border border-gray-300 rounded-l-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-              />
-              <button
-                type="submit"
-                className="bg-orange-600 text-white px-4 py-2 rounded-r-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
-              >
-                Send
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* Chat Button */}
-      <button
-        onClick={() => setShowChat(!showChat)}
-        className="fixed bottom-4 right-8 z-30 bg-orange-600 text-white p-4 rounded-full shadow-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-          />
-        </svg>
-      </button>
 
       {/* Hero Section */}
       <section className="relative w-full py-16 bg-gradient-to-r from-orange-50 to-amber-50">
@@ -971,7 +800,7 @@ export default function SupportPage() {
                         Chat with our support team in real-time.
                       </p>
                       <button
-                        onClick={() => setShowChat(true)}
+                        onClick={openChat}
                         className="text-orange-600 hover:text-orange-700 font-medium"
                       >
                         Start Chat
@@ -1307,7 +1136,7 @@ export default function SupportPage() {
                   Contact Support
                 </button>
                 <button
-                  onClick={() => setShowChat(true)}
+                  onClick={openChat}
                   className="inline-flex items-center justify-center rounded-md border border-orange-600 px-4 py-2 text-sm font-medium text-orange-600 hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
                 >
                   Start Live Chat

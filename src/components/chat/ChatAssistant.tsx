@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, Send, Sparkles, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useUser } from "@/src/context/user.provider";
 
 type ChatProduct = {
   id: string;
@@ -44,7 +45,9 @@ const apiBaseUrl = (
 ).replace(/\/+$/, "");
 
 const ChatAssistant = () => {
-  const [open, setOpen] = useState(false);
+  const { chatOpen, setChatOpen } = useUser();
+  const open = chatOpen;
+  const setOpen = setChatOpen;
   const [turns, setTurns] = useState<ChatTurn[]>([WELCOME]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
