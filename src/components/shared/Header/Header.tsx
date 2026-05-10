@@ -13,8 +13,8 @@ import MenuDropdown from "./MenuDropdoen";
 import Wishlist from "./wishlist";
 import Compare from "./Compare";
 import Comparison from "@/src/components/modal/Comparison";
-import Search from "./Search";
 import CartDrawer from "./CartDrawer";
+import Search from "./Search";
 
 const NAV_LINKS = [
   { name: "Home", path: "/" },
@@ -104,7 +104,33 @@ const MainHeader = () => {
             </select>
           </div>
 
-          <Search className="hidden lg:block flex-1 max-w-2xl ml-6 mr-6" />
+          <ul className="hidden lg:flex items-center space-x-6 ml-8">
+            {NAV_LINKS.map((link) => (
+              <li key={link.path}>
+                <Link
+                  href={link.path}
+                  className={`relative leading-[26px] flex items-center text-base font-medium px-2 transition-all duration-300 ${
+                    pathname === link.path
+                      ? "text-orange-500"
+                      : "text-gray-700 hover:text-orange-500"
+                  }`}
+                  onMouseEnter={() => setHighlightedLink(link.path)}
+                  onMouseLeave={() => setHighlightedLink(null)}
+                >
+                  {link.name}
+                  <span
+                    className={`absolute -bottom-1 left-0 w-full h-0.5 bg-orange-500 rounded-full transition-all duration-300 ${
+                      pathname === link.path
+                        ? "scale-x-100"
+                        : highlightedLink === link.path
+                          ? "scale-x-75"
+                          : "scale-x-0"
+                    }`}
+                  />
+                </Link>
+              </li>
+            ))}
+          </ul>
 
           <div className="flex items-center space-x-3">
             <button
