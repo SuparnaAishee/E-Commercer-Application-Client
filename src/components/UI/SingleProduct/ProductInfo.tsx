@@ -96,15 +96,35 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
         <h1 className="text-3xl font-bold text-gray-900 mb-2">{product?.name}</h1>
 
         <div className="flex items-center gap-2 mb-4">
-          <div className="flex">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star
-                key={star}
-                className="h-4 w-4 text-yellow-400 fill-yellow-400"
-              />
-            ))}
-          </div>
-          <span className="text-sm text-gray-500">(0 reviews)</span>
+          {(() => {
+            const reviews = product?.reviews ?? [];
+            const count = reviews.length;
+            const avg =
+              count === 0
+                ? 0
+                : reviews.reduce((s, r) => s + r.rating, 0) / count;
+            return (
+              <>
+                <div className="flex">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`h-4 w-4 ${
+                        star <= Math.round(avg)
+                          ? "text-yellow-400 fill-yellow-400"
+                          : "text-gray-300"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-sm text-gray-500">
+                  {count === 0
+                    ? "(no reviews yet)"
+                    : `(${avg.toFixed(1)} · ${count} review${count === 1 ? "" : "s"})`}
+                </span>
+              </>
+            );
+          })()}
 
           {product?.shop?.shopName && (
             <>

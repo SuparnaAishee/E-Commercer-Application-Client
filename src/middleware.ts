@@ -52,6 +52,7 @@ const publicRoutes = new Set([
   "/about",
   "/forgot-password",
   "/reset-password",
+  "/checkout",
 ]);
 
 const roleBasedRoutes = {

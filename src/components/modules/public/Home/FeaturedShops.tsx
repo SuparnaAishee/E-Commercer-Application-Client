@@ -24,39 +24,42 @@ const FeaturedShops = () => {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5">
-          {shops?.data?.slice(0, 10).map((shop, i) => (
-            <motion.div
-              key={shop.id}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: (i % 5) * 0.06 }}
-              viewport={{ once: true }}
-            >
-              <Link
-                href={`/shops/${shop.id}`}
-                className="group flex flex-col items-center justify-center text-center gap-3 p-6 rounded-2xl bg-white ring-1 ring-gray-100 hover:ring-orange-200 hover:-translate-y-1 hover:shadow-[0_20px_40px_-25px_rgba(255,165,0,0.4)] transition-all"
+          {shops?.data
+            ?.filter((shop) => shop.status === "ACTIVE")
+            .slice(0, 10)
+            .map((shop, i) => (
+              <motion.div
+                key={shop.id}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: (i % 5) * 0.06 }}
+                viewport={{ once: true }}
               >
-                <div className="relative h-16 w-16 rounded-2xl overflow-hidden bg-gradient-to-br from-orange-50 to-amber-50 ring-1 ring-orange-100/60 grid place-items-center">
-                  <img
-                    src={shop.shopLogo || "/placeholder.svg"}
-                    alt={shop.shopName}
-                    className="max-h-12 max-w-12 object-contain"
-                  />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-900 line-clamp-1">
-                    {shop.shopName}
-                  </p>
-                  <p className="text-[11px] text-gray-500 mt-0.5">
-                    Visit shop
-                  </p>
-                </div>
-                <span className="grid place-items-center h-7 w-7 rounded-full bg-gray-100 text-gray-500 group-hover:bg-orange-500 group-hover:text-white transition">
-                  <ArrowUpRight size={12} />
-                </span>
-              </Link>
-            </motion.div>
-          ))}
+                <Link
+                  href={`/shops/${shop.id}`}
+                  className="group flex flex-col items-center justify-center text-center gap-3 p-6 rounded-2xl bg-white ring-1 ring-gray-100 hover:ring-orange-200 hover:-translate-y-1 hover:shadow-[0_20px_40px_-25px_rgba(255,165,0,0.4)] transition-all"
+                >
+                  <div className="relative h-16 w-16 rounded-2xl overflow-hidden bg-gradient-to-br from-orange-50 to-amber-50 ring-1 ring-orange-100/60 grid place-items-center">
+                    <img
+                      src={shop.shopLogo || "/placeholder.svg"}
+                      alt={shop.shopName}
+                      className="max-h-12 max-w-12 object-contain"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 line-clamp-1">
+                      {shop.shopName}
+                    </p>
+                    <p className="text-[11px] text-gray-500 mt-0.5">
+                      Visit shop
+                    </p>
+                  </div>
+                  <span className="grid place-items-center h-7 w-7 rounded-full bg-gray-100 text-gray-500 group-hover:bg-orange-500 group-hover:text-white transition">
+                    <ArrowUpRight size={12} />
+                  </span>
+                </Link>
+              </motion.div>
+            ))}
         </div>
       </div>
     </section>

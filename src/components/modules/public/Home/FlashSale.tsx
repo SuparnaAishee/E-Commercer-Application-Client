@@ -7,13 +7,12 @@ import { useCountdown } from "@/src/hooks/useCountdown";
 
 const FlashSale = () => {
   const { data: products } = useGetAllProducts([
-    { name: "limit", value: 200 },
+    { name: "limit", value: 5 },
+    { name: "isFlashSale", value: true },
   ]);
   const timeLeft = useCountdown({ hours: 5, minutes: 30, seconds: 0 });
 
-  const flashSaleProducts = products?.data
-    ?.filter((product) => product.isFlashSale)
-    .slice(0, 5);
+  const flashSaleProducts = products?.data?.slice(0, 5);
 
   const isLive =
     timeLeft.hours > 0 || timeLeft.minutes > 0 || timeLeft.seconds > 0;

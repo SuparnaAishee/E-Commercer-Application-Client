@@ -11,6 +11,8 @@ import AccountDropdown from "./AccountDropdown";
 import CartDropdown from "./CartDropdown";
 import MenuDropdown from "./MenuDropdoen";
 import Wishlist from "./wishlist";
+import Compare from "./Compare";
+import Comparison from "@/src/components/modal/Comparison";
 
 const NAV_LINKS = [
   { name: "Home", path: "/" },
@@ -137,23 +139,23 @@ const MainHeader = () => {
             </button>
 
             {user?.email ? (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-1 md:gap-2">
                 <div className="relative group">
                   <MenuDropdown />
-                  <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-orange-500 group-hover:w-full transition-all duration-300" />
                 </div>
                 <div className="relative group">
                   <Wishlist />
-                  <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-orange-500 group-hover:w-full transition-all duration-300" />
+                </div>
+                <div className="relative group">
+                  <Compare />
                 </div>
                 <div className="relative group">
                   <CartDropdown />
-                  <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-orange-500 group-hover:w-full transition-all duration-300" />
                 </div>
                 <div className="relative group">
                   <AccountDropdown />
-                  <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-orange-500 group-hover:w-full transition-all duration-300" />
                 </div>
+                <Comparison />
               </div>
             ) : (
               <div className="flex items-center space-x-4">

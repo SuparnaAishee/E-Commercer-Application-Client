@@ -12,9 +12,11 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useCreateCompare, useGetMyComparison } from "@/src/hooks/compare";
 import { useAddToWishlist } from "@/src/hooks/wishlist";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ProductCart = ({ product }: { product: IProduct }) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { user, setShowCompareModal } = useUser();
   const { data: comparisons, refetch: refetchComparison } =
     useGetMyComparison();
@@ -106,6 +108,16 @@ const ProductCart = ({ product }: { product: IProduct }) => {
       (compare) => compare.product?.shopId !== product?.shopId,
     );
 
+    const onCompareSuccess = (data: any) => {
+      if (data?.success) {
+        queryClient.invalidateQueries({ queryKey: ["get-my-compare-product"] });
+        refetchComparison();
+        toast.success(data?.message ?? "Added to compare");
+      } else {
+        toast.error(data?.message ?? "Could not add to compare");
+      }
+    };
+
     if (isDifferentShop) {
       Swal.fire({
         title: "Different shop detected",
@@ -119,16 +131,7 @@ const ProductCart = ({ product }: { product: IProduct }) => {
         if (result.isConfirmed) {
           addToCompare(
             { productId: product.id, type: "replaceProduct" },
-            {
-              onSuccess(data) {
-                if (data?.success) {
-                  refetchComparison();
-                  toast.success(data?.message);
-                } else {
-                  toast.error(data?.message);
-                }
-              },
-            },
+            { onSuccess: onCompareSuccess },
           );
         }
       });
@@ -137,14 +140,9 @@ const ProductCart = ({ product }: { product: IProduct }) => {
         { productId: product.id },
         {
           onSuccess(data) {
-            if (data?.success) {
-              refetchComparison();
-              if (comparisons?.data?.length === 2) {
-                setShowCompareModal(true);
-              }
-              toast.success(data?.message);
-            } else {
-              toast.error(data?.message);
+            onCompareSuccess(data);
+            if (data?.success && comparisons?.data?.length === 2) {
+              setShowCompareModal(true);
             }
           },
         },
@@ -157,12 +155,24 @@ const ProductCart = ({ product }: { product: IProduct }) => {
       promptLogin("Please login to add product to wishlist!");
       return;
     }
-    try {
-      addToWishlist({ productId: product.id });
-      toast.success("Product added to wishlist!");
-    } catch {
-      toast.error("Failed to add product to wishlist.");
-    }
+    addToWishlist(
+      { productId: product.id },
+      {
+        onSuccess(data) {
+          if (data?.success) {
+            queryClient.invalidateQueries({
+              queryKey: ["get-my-wishlist-product"],
+            });
+            toast.success(data?.message ?? "Added to wishlist");
+          } else {
+            toast.error(data?.message ?? "Could not add to wishlist");
+          }
+        },
+        onError() {
+          toast.error("Failed to add product to wishlist.");
+        },
+      },
+    );
   };
 
   const hasDiscount = (product.discount_percentage ?? 0) > 0;

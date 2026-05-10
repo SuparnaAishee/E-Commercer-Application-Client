@@ -46,7 +46,7 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
           <DescriptionTab description={product?.description} />
         )}
         {activeTab === "details" && <DetailsTab product={product} />}
-        {activeTab === "reviews" && <ReviewsTab />}
+        {activeTab === "reviews" && <ReviewsTab product={product} />}
       </div>
     </div>
   );

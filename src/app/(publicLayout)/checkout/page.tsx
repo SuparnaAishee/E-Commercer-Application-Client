@@ -240,14 +240,17 @@ const CheckoutPage = () => {
     }));
     createOrder(payload, {
       onSuccess(data) {
-        if (data?.success) {
-          router.push(data?.data?.payment_url);
+        if (data?.success && data?.data?.payment_url) {
+          router.push(data.data.payment_url);
+        } else if (data?.success) {
+          toast.error("Payment gateway is unavailable. Please try again later.");
         } else {
           toast.error(data?.message);
         }
         setIsCheckingOut(false);
       },
       onError() {
+        toast.error("Could not create order");
         setIsCheckingOut(false);
       },
     });
