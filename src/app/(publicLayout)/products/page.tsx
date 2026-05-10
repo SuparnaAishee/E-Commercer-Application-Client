@@ -72,6 +72,19 @@ const ProductPage = () => {
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const [gridView, setGridView] = useState<"grid3" | "grid2" | "list">("grid3");
   const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 12;
+  useEffect(() => {
+    setQuery((prev) => {
+      let next = prev.filter((q) => q.name !== "page" && q.name !== "limit");
+      next = [
+        ...next,
+        { name: "page", value: currentPage },
+        { name: "limit", value: PAGE_SIZE },
+      ];
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage]);
   const [sortOrder, setSortOrder] = useState<
     "" | "asc" | "desc" | "newest" | "rating"
   >("");
@@ -282,14 +295,22 @@ const ProductPage = () => {
   };
 
   return (
-    <div className="container py-8 md:py-12 pr-12 pl-8">
+    <div className="container mx-auto px-4 md:px-8 py-8 md:py-12">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl text-center md:text-4xl font-bold text-gray-800 mb-2">
-          Our Products
+        <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-gray-900 mb-1">
+          {urlSearchTerm
+            ? `Results for "${urlSearchTerm}"`
+            : selectedCategory
+              ? selectedCategory
+              : "All products"}
         </h1>
-        <p className="text-gray-600 text-center">
-          Discover our collection of high-quality products
+        <p className="text-sm text-gray-500">
+          {productsLoading
+            ? "Browsing our catalogue…"
+            : `${products?.meta?.total ?? 0} matching products${
+                urlSearchTerm ? "" : " across our shops"
+              }`}
         </p>
       </div>
 
@@ -517,31 +538,12 @@ const ProductPage = () => {
                 </Dropdown>
               </div>
 
-              <div className="flex items-center gap-2">
-                {/* Search Input */}
-                <div className="w-full sm:w-auto">
-                  <Input
-                    value={searchValue}
-                    onValueChange={handleSearchChange}
-                    placeholder="Search products..."
-                    startContent={
-                      <Search size={18} className="text-gray-400" />
-                    }
-                    endContent={
-                      searchValue ? (
-                        <Button
-                          isIconOnly
-                          variant="light"
-                          size="sm"
-                          onClick={() => handleSearchChange("")}
-                        >
-                          <X size={14} />
-                        </Button>
-                      ) : null
-                    }
-                    className="w-full sm:w-64"
-                  />
-                </div>
+              <div className="flex items-center gap-3">
+                <span className="hidden md:inline-flex text-xs text-gray-500 tabular-nums">
+                  {productsLoading
+                    ? "Loading…"
+                    : `${visibleProducts.length} of ${products?.meta?.total ?? 0} products`}
+                </span>
 
                 {/* View Mode Buttons */}
                 <div className="hidden sm:flex border rounded-lg overflow-hidden">
@@ -625,17 +627,17 @@ const ProductPage = () => {
           )}
 
           {/* Pagination */}
-          {products?.data && products?.data?.length > 0 && (
+          {products?.meta?.total && products.meta.total > PAGE_SIZE ? (
             <div className="mt-8 flex justify-center">
               <Pagination
-                total={10}
+                total={Math.max(1, Math.ceil(products.meta.total / PAGE_SIZE))}
                 initialPage={1}
                 page={currentPage}
                 onChange={setCurrentPage}
                 showControls
               />
             </div>
-          )}
+          ) : null}
         </div>
       </div>
 
