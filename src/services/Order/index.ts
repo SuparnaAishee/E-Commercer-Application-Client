@@ -1,6 +1,4 @@
-"use server";
-
-import { AxiosSecure } from "@/src/lib/AxiosSecure";
+import { AxiosClient as AxiosSecure } from "@/src/lib/AxiosClient";
 import { IOrderPayload, TQueryParam } from "@/src/types";
 
 export const createOrder = async (payload: IOrderPayload[]) => {

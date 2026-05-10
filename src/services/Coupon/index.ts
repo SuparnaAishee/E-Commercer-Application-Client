@@ -1,6 +1,4 @@
-"use server";
-
-import { AxiosSecure } from "@/src/lib/AxiosSecure";
+import { AxiosClient as AxiosSecure } from "@/src/lib/AxiosClient";
 import { ICoupon, TQueryParam } from "@/src/types";
 
 export const createCoupon = async (payload: Partial<ICoupon>) => {
