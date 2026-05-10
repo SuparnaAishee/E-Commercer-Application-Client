@@ -1,15 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useGetAllProducts } from "@/src/hooks/product";
 import ProductCart from "@/src/components/UI/ProductCart/ProductCart";
+import { ProductCardSkeleton } from "@/src/components/UI/Skeleton";
 import { motion } from "framer-motion";
 import { RefreshCw, Clock } from "lucide-react";
-import type { IProduct } from "@/src/types";
 
 const FlashSale = () => {
-  const { data: allProducts, isLoading } = useGetAllProducts([]);
-  const [flashSaleProducts, setFlashSaleProducts] = useState<IProduct[]>([]);
+  const { data: products, isLoading } = useGetAllProducts([
+    { name: "isFlashSale", value: true },
+    { name: "limit", value: 50 },
+  ]);
+  const flashSaleProducts = useMemo(() => products?.data ?? [], [products]);
   const [timeRemaining, setTimeRemaining] = useState({
     days: 0,
     hours: 0,
@@ -17,54 +20,39 @@ const FlashSale = () => {
     seconds: 0,
   });
 
-  // Filter flash sale products
-  useEffect(() => {
-    if (allProducts?.data) {
-      const flashProducts = allProducts.data.filter(
-        (product) => product.isFlashSale === true,
-      );
-      setFlashSaleProducts(flashProducts);
-    }
-  }, [allProducts]);
-
-  // Countdown timer driven by sale_end_time
-  useEffect(() => {
-    if (!flashSaleProducts.length) return;
-
-    const endDates = flashSaleProducts
-      .filter((product): product is IProduct & { sale_end_time: string } =>
-        Boolean(product.sale_end_time),
-      )
-      .map((product) => new Date(product.sale_end_time).getTime());
-
-    if (endDates.length === 0) return;
-
-    const earliestEndDate = new Date(Math.min(...endDates));
-
-    const timer = setInterval(() => {
-      const now = new Date();
-      const difference = earliestEndDate.getTime() - now.getTime();
-
-      if (difference <= 0) {
-        clearInterval(timer);
-        setTimeRemaining({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-        return;
-      }
-
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-      const hours = Math.floor(
-        (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-      );
-      const minutes = Math.floor(
-        (difference % (1000 * 60 * 60)) / (1000 * 60),
-      );
-      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-      setTimeRemaining({ days, hours, minutes, seconds });
-    }, 1000);
-
-    return () => clearInterval(timer);
+  const earliestEnd = useMemo(() => {
+    const ts = flashSaleProducts
+      .map((p) => p.sale_end_time)
+      .filter((v): v is string => Boolean(v))
+      .map((v) => new Date(v).getTime())
+      .filter((n) => Number.isFinite(n));
+    return ts.length > 0 ? Math.min(...ts) : null;
   }, [flashSaleProducts]);
+
+  useEffect(() => {
+    if (!earliestEnd) return;
+
+    const tick = () => {
+      const diff = earliestEnd - Date.now();
+      if (diff <= 0) {
+        setTimeRemaining({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return false;
+      }
+      setTimeRemaining({
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((diff % (1000 * 60)) / 1000),
+      });
+      return true;
+    };
+
+    if (!tick()) return;
+    const timer = setInterval(() => {
+      if (!tick()) clearInterval(timer);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [earliestEnd]);
 
   return (
     <section className="bg-gradient-to-br from-orange-50 to-amber-50 py-16 px-4 md:px-8 lg:px-16">
@@ -122,18 +110,8 @@ const FlashSale = () => {
 
         {isLoading ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
-              <div
-                key={i}
-                className="bg-white rounded-xl overflow-hidden shadow-sm"
-              >
-                <div className="h-48 bg-gray-200 animate-pulse" />
-                <div className="p-4 space-y-3">
-                  <div className="h-4 bg-gray-200 animate-pulse rounded-md" />
-                  <div className="h-6 bg-gray-200 animate-pulse rounded-md w-1/2" />
-                  <div className="h-10 bg-gray-200 animate-pulse rounded-md" />
-                </div>
-              </div>
+            {Array.from({ length: 8 }).map((_, i) => (
+              <ProductCardSkeleton key={i} />
             ))}
           </div>
         ) : flashSaleProducts.length > 0 ? (
