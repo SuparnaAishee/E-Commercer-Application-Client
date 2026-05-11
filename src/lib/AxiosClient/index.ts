@@ -8,7 +8,7 @@ export const AxiosClient = axios.create({
 
 let refreshInFlight: Promise<string | null> | null = null;
 
-const refreshAccessToken = async (): Promise<string | null> => {
+export const refreshAccessToken = async (): Promise<string | null> => {
   const refreshToken = Cookies.get("refreshToken");
   if (!refreshToken) return null;
 

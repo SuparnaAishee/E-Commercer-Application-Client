@@ -3,17 +3,11 @@ import type { IChildren } from "@/src/types/global";
 
 const layout = ({ children }: IChildren) => {
   return (
-    <div className="relative flex flex-col min-h-screen">
-      <main className="flex-grow">
-        {/* <TopHeader />
-         */}
-        {/* <Header /> */}
-        {/* <BreadCrumbs /> */}
-        <div className="container mx-auto grid grid-cols-12 gap-6 pb-14 mt-8">
-          <div className="col-span-3">
-            <VendorSidebar />
-          </div>
-          <div className="col-span-9">{children}</div>
+    <div className="min-h-screen bg-gray-50">
+      <VendorSidebar />
+      <main className="lg:pl-72">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8">
+          {children}
         </div>
       </main>
     </div>

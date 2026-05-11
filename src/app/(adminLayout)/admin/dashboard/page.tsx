@@ -125,7 +125,7 @@ export default function AdminDashboard() {
 
   if (isLoading || !data) {
     return (
-      <div className="col-span-12 lg:col-span-9 space-y-6">
+      <div className="space-y-6">
         <StatsRowSkeleton count={4} />
         <Skeleton className="h-80 w-full" rounded="2xl" />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -152,7 +152,7 @@ export default function AdminDashboard() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className="col-span-12 lg:col-span-9 space-y-6"
+      className="space-y-6"
     >
       <header>
         <p className="flex items-center gap-2 text-[11px] font-semibold tracking-[0.18em] uppercase text-orange-600 mb-2">

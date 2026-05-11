@@ -114,7 +114,7 @@ const ManageUser = () => {
   );
 
   return (
-    <div className="col-span-12 lg:col-span-9">
+    <div>
       <Table aria-label="Example table with custom cells">
         <TableHeader columns={columns}>
           {(column) => (

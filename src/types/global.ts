@@ -15,6 +15,7 @@ export interface IUser {
   exp: number;
   address?: string;
   description?: string;
+  phone?: string;
   createdAt?: string;
 }
 

@@ -122,7 +122,7 @@ export default function VendorDashboard() {
 
   if (isLoading || !data) {
     return (
-      <div className="col-span-12 lg:col-span-9 space-y-6">
+      <div className="space-y-6">
         <StatsRowSkeleton count={4} />
         <Skeleton className="h-80 w-full" rounded="2xl" />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -166,7 +166,7 @@ export default function VendorDashboard() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className="col-span-12 lg:col-span-9 space-y-6"
+      className="space-y-6"
     >
       <header className="rounded-2xl bg-gradient-to-br from-gray-900 via-gray-900 to-orange-800 text-white p-6 md:p-8 overflow-hidden relative">
         <div className="absolute -top-20 -right-16 h-64 w-64 rounded-full bg-orange-500/30 blur-3xl pointer-events-none" />

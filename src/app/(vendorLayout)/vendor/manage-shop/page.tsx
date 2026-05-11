@@ -12,7 +12,7 @@ const ManageShop = () => {
   return (
     <>
       {!isLoading && !isPending && !data?.data && (
-        <div className="col-span-12 lg:col-span-9 pt-4 ">
+        <div className="pt-4">
           <CreateShop />
           <p className="flex items-center justify-center h-full">
             {" "}
@@ -21,7 +21,7 @@ const ManageShop = () => {
         </div>
       )}
       {data?.data && (
-        <div className="col-span-12 lg:col-span-9">
+        <div>
           <div className="md:flex justify-between items-center border rounded p-5">
             {data?.data?.shopLogo && (
               <div className="w-20 h-20">

@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
 "use client";
 
 import type React from "react";
@@ -14,14 +11,17 @@ import {
   Button,
   useDisclosure,
   Input,
+  Textarea,
 } from "@nextui-org/react";
 import { type FieldValues, type SubmitHandler, useForm } from "react-hook-form";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { logOut } from "@/src/services/Auth";
 import { useUser } from "@/src/context/user.provider";
 import { useRouter } from "next/navigation";
+import { refreshAccessToken } from "@/src/lib/AxiosClient";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Camera,
@@ -30,13 +30,24 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
+  User as UserIcon,
+  Phone,
+  MapPin,
+  FileText,
 } from "lucide-react";
-import { useUpdateProfile } from "@/src/hooks/profile";
+import { useGetMyProfile, useUpdateProfile } from "@/src/hooks/profile";
+
+type FormValues = {
+  name: string;
+  phone: string;
+  address: string;
+  description: string;
+};
 
 export default function UpdateProfile() {
-  const { user } = useUser();
+  const { user, setIsUserLoading } = useUser();
   const router = useRouter();
-  const { setIsUserLoading } = useUser();
+  const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [image, setImage] = useState<File | null>(null);
@@ -47,34 +58,41 @@ export default function UpdateProfile() {
   );
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
+  const { data: profileResp } = useGetMyProfile();
+  const profile = profileResp?.data;
+
   const {
     handleSubmit,
     register,
     reset,
     formState: { errors, isDirty },
-  } = useForm({
+  } = useForm<FormValues>({
     defaultValues: {
-      name: user?.name || "",
+      name: "",
+      phone: "",
+      address: "",
+      description: "",
     },
   });
 
-  const { mutate: updateProfile, isPending, isSuccess } = useUpdateProfile();
+  const { mutate: updateProfile, isPending } = useUpdateProfile();
 
-  // Reset form when user data changes
+  // Pre-fill form once profile data loads or modal opens
   useEffect(() => {
-    if (user) {
+    if (isOpen) {
       reset({
-        name: user.name,
+        name: profile?.name || user?.name || "",
+        phone: profile?.phone || "",
+        address: profile?.address || "",
+        description: profile?.description || "",
       });
     }
-  }, [user, reset]);
+  }, [isOpen, profile, user, reset]);
 
-  // Clear form status after a delay
+  // Clear status after a delay
   useEffect(() => {
     if (formStatus !== "idle") {
-      const timer = setTimeout(() => {
-        setFormStatus("idle");
-      }, 3000);
+      const timer = setTimeout(() => setFormStatus("idle"), 3000);
       return () => clearTimeout(timer);
     }
   }, [formStatus]);
@@ -82,29 +100,51 @@ export default function UpdateProfile() {
   // Clean up preview URL when component unmounts
   useEffect(() => {
     return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
   }, [previewUrl]);
 
   const handleUpdateProfile: SubmitHandler<FieldValues> = (value) => {
     setIsSubmitting(true);
-    const payload = { name: value?.name };
+    const payload = {
+      name: value?.name,
+      phone: value?.phone || "",
+      address: value?.address || "",
+      description: value?.description || "",
+    };
     const formData = new FormData();
     formData.append("data", JSON.stringify(payload));
 
-    if (image) {
-      formData.append("file", image);
-    }
+    if (image) formData.append("file", image);
 
     updateProfile(formData, {
-      onSuccess(data) {
-        if (data?.success) {
-          setFormStatus("success");
-          toast.success(data?.message);
+      async onSuccess(data) {
+        if (!data?.success) {
+          setFormStatus("error");
+          toast.error(data?.message);
+          setIsSubmitting(false);
+          return;
+        }
 
-          // Delay logout to show success animation
+        // Mint a fresh access token so the JWT-derived sidebar (name, photo)
+        // reflects the saved changes without forcing a full re-login.
+        const refreshed = await refreshAccessToken();
+
+        setFormStatus("success");
+        toast.success(data?.message);
+
+        if (refreshed) {
+          queryClient.invalidateQueries({ queryKey: ["my-profile"] });
+          setIsUserLoading(true);
+          setTimeout(() => {
+            setImage(null);
+            setPreviewUrl(null);
+            setIsSubmitting(false);
+            router.refresh();
+            onClose();
+          }, 800);
+        } else {
+          // Refresh failed (expired refresh token) — fall back to forced re-login
           setTimeout(() => {
             logOut();
             setIsUserLoading(true);
@@ -113,11 +153,7 @@ export default function UpdateProfile() {
             setPreviewUrl(null);
             router.push("/login");
             onClose();
-          }, 1500);
-        } else {
-          setFormStatus("error");
-          toast.error(data?.message);
-          setIsSubmitting(false);
+          }, 1200);
         }
       },
       onError() {
@@ -131,29 +167,20 @@ export default function UpdateProfile() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      processFile(file);
+      processFile(e.target.files[0]);
     }
   };
 
   const processFile = (file: File) => {
-    // Check file type
     if (!file.type.match(/image\/(jpeg|jpg|png|gif|webp)/)) {
       toast.error("Please select a valid image file (JPEG, PNG, GIF, WebP)");
       return;
     }
-
-    // Check file size (5MB limit)
     if (file.size > 5 * 1024 * 1024) {
       toast.error("Image size should be less than 5MB");
       return;
     }
-
-    // Create preview URL
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
-
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
     setImage(file);
     setPreviewUrl(URL.createObjectURL(file));
   };
@@ -162,27 +189,19 @@ export default function UpdateProfile() {
     e.preventDefault();
     setIsDragging(true);
   };
-
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
   };
-
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
-
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const file = e.dataTransfer.files[0];
-      processFile(file);
+      processFile(e.dataTransfer.files[0]);
     }
   };
 
-  const triggerFileInput = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
+  const triggerFileInput = () => fileInputRef.current?.click();
 
   const removeImage = () => {
     setImage(null);
@@ -190,91 +209,51 @@ export default function UpdateProfile() {
       URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
     }
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
     <>
       <Button
         onPress={onOpen}
-        className="bg-gray-300 text-black hover:bg-gray-400 transition-all"
-        startContent={<Camera size={18} />}
+        className="bg-white text-gray-800 ring-1 ring-gray-200 hover:bg-gray-50 transition-all"
+        startContent={<Camera size={16} />}
       >
-        Update Profile
+        Edit Profile
       </Button>
 
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        placement="top-center"
+        placement="center"
         backdrop="blur"
+        size="2xl"
+        scrollBehavior="inside"
         classNames={{
-          base: "bg-white rounded-lg shadow-lg",
-          header: "border-b border-gray-200",
+          base: "bg-white rounded-2xl shadow-xl",
+          header: "border-b border-gray-100",
           body: "py-6",
-          footer: "border-t border-gray-200",
+          footer: "border-t border-gray-100",
         }}
       >
         <ModalContent>
           {(onClose) => (
             <form onSubmit={handleSubmit(handleUpdateProfile)}>
               <ModalHeader className="flex flex-col gap-1">
-                <h3 className="text-xl font-semibold text-gray-800">
-                  Update Profile
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Edit profile
                 </h3>
-                <p className="text-sm text-gray-500">
-                  Change your profile information
+                <p className="text-xs text-gray-500 font-normal">
+                  Update your name, photo, and contact details.
                 </p>
               </ModalHeader>
 
               <ModalBody>
-                <div className="space-y-6">
-                  {/* Name Input */}
+                <div className="space-y-5">
+                  {/* Photo upload */}
                   <div className="space-y-2">
-                    <Input
-                      {...register("name", {
-                        required: "Name is required",
-                        minLength: {
-                          value: 2,
-                          message: "Name must be at least 2 characters",
-                        },
-                      })}
-                      label="Name"
-                      placeholder="Enter your name"
-                      variant="bordered"
-                      color={errors.name ? "danger" : "default"}
-                      errorMessage={errors.name?.message?.toString()}
-                      isInvalid={!!errors.name}
-                      startContent={
-                        <span className="text-gray-400">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="18"
-                            height="18"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                          </svg>
-                        </span>
-                      }
-                    />
-                  </div>
-
-                  {/* Image Upload */}
-                  <div className="space-y-2">
-                    <label
-                      htmlFor="image"
-                      className="text-sm font-medium text-gray-700"
-                    >
-                      Profile Photo
+                    <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Profile photo
                     </label>
 
                     <input
@@ -286,10 +265,10 @@ export default function UpdateProfile() {
                     />
 
                     <div
-                      className={`relative border-2 border-dashed rounded-lg p-4 transition-all ${
+                      className={`relative border-2 border-dashed rounded-xl p-4 transition-all ${
                         isDragging
                           ? "border-orange-500 bg-orange-50"
-                          : "border-gray-300 hover:border-orange-400"
+                          : "border-gray-200 hover:border-orange-400"
                       }`}
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
@@ -298,17 +277,17 @@ export default function UpdateProfile() {
                       {previewUrl ? (
                         <div className="relative">
                           <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
+                            initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="relative mx-auto rounded-lg overflow-hidden"
-                            style={{ maxWidth: "240px" }}
+                            className="relative mx-auto rounded-xl overflow-hidden"
+                            style={{ maxWidth: "200px" }}
                           >
                             <Image
-                              src={previewUrl || "/placeholder.svg"}
+                              src={previewUrl}
                               alt="Profile preview"
-                              width={240}
-                              height={240}
-                              className="object-cover mx-auto rounded-lg"
+                              width={200}
+                              height={200}
+                              className="object-cover mx-auto rounded-xl"
                             />
                             <motion.button
                               whileHover={{ scale: 1.1 }}
@@ -318,44 +297,117 @@ export default function UpdateProfile() {
                               className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"
                               aria-label="Remove image"
                             >
-                              <X size={16} />
+                              <X size={14} />
                             </motion.button>
                           </motion.div>
                         </div>
                       ) : (
-                        <div
-                         
+                        <button
+                          type="button"
                           onClick={triggerFileInput}
-                          className="flex flex-col items-center justify-center py-6 cursor-pointer"
+                          className="w-full flex flex-col items-center justify-center py-4"
                         >
-                          <Upload className="h-10 w-10 text-gray-400 mb-2" />
+                          {(profile?.profilePhoto || user?.profilePhoto) && (
+                            <Image
+                              src={profile?.profilePhoto || user?.profilePhoto || ""}
+                              alt="Current profile"
+                              width={64}
+                              height={64}
+                              className="rounded-full mb-3 ring-1 ring-gray-200"
+                            />
+                          )}
+                          <Upload className="h-6 w-6 text-gray-400 mb-2" />
                           <p className="text-sm text-gray-600 text-center">
                             <span className="font-medium text-orange-500">
                               Click to upload
                             </span>{" "}
-                            or drag and drop
+                            or drag &amp; drop
                           </p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            PNG, JPG, GIF or WebP (max. 5MB)
+                          <p className="text-[11px] text-gray-400 mt-1">
+                            PNG, JPG, GIF or WebP · max 5MB
                           </p>
-                          {user?.profilePhoto && !previewUrl && (
-                            <div className="mt-4 text-center">
-                              <p className="text-xs text-gray-500 mb-2">
-                                Current profile photo:
-                              </p>
-                              <Image
-                                src={user.profilePhoto || "/placeholder.svg"}
-                                alt="Current profile"
-                                width={80}
-                                height={80}
-                                className="rounded-full mx-auto border-2 border-gray-200"
-                              />
-                            </div>
-                          )}
-                        </div>
+                        </button>
                       )}
                     </div>
                   </div>
+
+                  {/* Name */}
+                  <Input
+                    {...register("name", {
+                      required: "Name is required",
+                      minLength: {
+                        value: 2,
+                        message: "Name must be at least 2 characters",
+                      },
+                    })}
+                    label="Name"
+                    placeholder="Your full name"
+                    variant="bordered"
+                    color={errors.name ? "danger" : "default"}
+                    errorMessage={errors.name?.message?.toString()}
+                    isInvalid={!!errors.name}
+                    startContent={
+                      <UserIcon size={16} className="text-gray-400" />
+                    }
+                  />
+
+                  {/* Phone */}
+                  <Input
+                    {...register("phone", {
+                      maxLength: {
+                        value: 30,
+                        message: "Phone is too long",
+                      },
+                    })}
+                    type="tel"
+                    label="Phone"
+                    placeholder="e.g. +1 555 123 4567"
+                    variant="bordered"
+                    color={errors.phone ? "danger" : "default"}
+                    errorMessage={errors.phone?.message?.toString()}
+                    isInvalid={!!errors.phone}
+                    startContent={<Phone size={16} className="text-gray-400" />}
+                  />
+
+                  {/* Address */}
+                  <Textarea
+                    {...register("address", {
+                      maxLength: {
+                        value: 300,
+                        message: "Address is too long (300 chars max)",
+                      },
+                    })}
+                    label="Address"
+                    placeholder="Street, city, country"
+                    variant="bordered"
+                    minRows={2}
+                    color={errors.address ? "danger" : "default"}
+                    errorMessage={errors.address?.message?.toString()}
+                    isInvalid={!!errors.address}
+                    startContent={
+                      <MapPin size={16} className="text-gray-400" />
+                    }
+                  />
+
+                  {/* Description / Bio */}
+                  <Textarea
+                    {...register("description", {
+                      maxLength: {
+                        value: 500,
+                        message: "About me is too long (500 chars max)",
+                      },
+                    })}
+                    label="About"
+                    placeholder="A short bio or store description"
+                    variant="bordered"
+                    minRows={3}
+                    color={errors.description ? "danger" : "default"}
+                    errorMessage={errors.description?.message?.toString()}
+                    isInvalid={!!errors.description}
+                    startContent={
+                      <FileText size={16} className="text-gray-400" />
+                    }
+                  />
                 </div>
               </ModalBody>
 
@@ -373,24 +425,24 @@ export default function UpdateProfile() {
                   {formStatus === "success" ? (
                     <motion.div
                       key="success"
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                      exit={{ opacity: 0, y: -8 }}
+                      className="bg-emerald-500 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                     >
-                      <CheckCircle size={18} />
-                      <span>Profile Updated!</span>
+                      <CheckCircle size={16} />
+                      <span className="text-sm font-medium">Saved!</span>
                     </motion.div>
                   ) : formStatus === "error" ? (
                     <motion.div
                       key="error"
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
+                      exit={{ opacity: 0, y: -8 }}
                       className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                     >
-                      <AlertCircle size={18} />
-                      <span>Update Failed</span>
+                      <AlertCircle size={16} />
+                      <span className="text-sm font-medium">Failed</span>
                     </motion.div>
                   ) : (
                     <motion.div key="button">
@@ -408,12 +460,12 @@ export default function UpdateProfile() {
                         {isPending || isSubmitting ? (
                           <span className="flex items-center gap-2">
                             <Loader2 className="h-4 w-4 animate-spin" />
-                            Updating...
+                            Saving...
                           </span>
                         ) : (
                           <span className="flex items-center gap-2">
                             <CheckCircle className="h-4 w-4" />
-                            Update Profile
+                            Save changes
                           </span>
                         )}
                       </Button>
@@ -428,149 +480,3 @@ export default function UpdateProfile() {
     </>
   );
 }
-
-// import {
-//   Modal,
-//   ModalContent,
-//   ModalHeader,
-//   ModalBody,
-//   ModalFooter,
-//   Button,
-//   useDisclosure,
-//   Input,
-// } from "@nextui-org/react";
-// import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
-// import { toast } from "sonner";
-// import { useEffect, useState } from "react";
-// import Image from "next/image";
-// import { AiOutlinePlusCircle } from "react-icons/ai";
-// import { useUpdateProfile } from "@/src/hooks/profile";
-// import { logOut } from "@/src/services/Auth";
-// import { useUser } from "@/src/context/user.provider";
-// import { useRouter } from "next/navigation";
-// import { TbFidgetSpinner } from "react-icons/tb";
-
-// export default function UpdateProfile() {
-//   const { user } = useUser();
-//   const router = useRouter();
-//   const { setIsUserLoading } = useUser();
-//   const { handleSubmit, register, reset } = useForm();
-//   const [image, setImage] = useState<File | null>(null);
-//   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-
-//   const { mutate: updateProfile, isPending, isSuccess } = useUpdateProfile();
-
-//   const handleUpdateProfile: SubmitHandler<FieldValues> = (value) => {
-//     const payload = { name: value?.name };
-//     const formData = new FormData();
-//     formData.append("data", JSON.stringify(payload));
-//     if (image) {
-//       formData.append("file", image);
-//     }
-//     updateProfile(formData, {
-//       onSuccess(data) {
-//         if (data?.success) {
-//           toast.success(data?.message);
-//           logOut();
-//           setIsUserLoading(true);
-//           reset();
-//           setImage(null);
-//           router.push("/login");
-//           onClose();
-//         } else {
-//           toast.error(data?.message);
-//         }
-//       },
-//     });
-//   };
-
-//   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     e.preventDefault();
-//     if (e.target.files) {
-//       const files = Array.from(e.target.files);
-//       setImage(files[0]);
-//     }
-//   };
-
-//   useEffect(() => {
-//     reset({
-//       name: user?.name,
-//     });
-//   }, [user]);
-
-//   return (
-//     <>
-//       <Button onPress={onOpen}>Update Profile</Button>
-
-//       <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
-//         <ModalContent>
-//           {(onClose) => (
-//             <form onSubmit={handleSubmit(handleUpdateProfile)}>
-//               <ModalHeader className="flex flex-col gap-1">
-//                 Update Profile
-//               </ModalHeader>
-//               <ModalBody>
-//                 <Input
-//                   {...register("name", { required: true })}
-//                   label="Name"
-//                   placeholder="Enter Name"
-//                   variant="bordered"
-//                 />
-
-//                 <div className="mt-4">
-//                   <label htmlFor="Image" className="text-xs">
-//                     Profile Photo
-//                   </label>
-//                   <input
-//                     type="file"
-//                     onChange={handleImageChange}
-//                     name="imageUrl"
-//                     id="upload"
-//                     className="hidden"
-//                     multiple
-//                   />
-//                   <div className="w-full flex items-center flex-wrap">
-//                     <label htmlFor="upload">
-//                       <AiOutlinePlusCircle
-//                         size={30}
-//                         className="mt-3 cursor-pointer"
-//                         color="#555"
-//                       />
-//                     </label>
-//                     {image && (
-//                       <Image
-//                         height={120}
-//                         width={120}
-//                         src={URL.createObjectURL(image)}
-//                         alt="Image"
-//                         className="h-[120px] w-[120px] object-cover m-2"
-//                       />
-//                     )}
-//                   </div>
-//                 </div>
-//               </ModalBody>
-//               <ModalFooter>
-//                 <Button color="danger" variant="flat" onPress={onClose}>
-//                   Cancel
-//                 </Button>
-//                 <Button
-//                   type="submit"
-//                   className="bg-orange-500 text-white hover:bg-orange-600"
-//                 >
-//                   {isPending && !isSuccess ? (
-//                     <span className="flex items-center gap-2 justify-center text-base">
-//                       <span>Please Wait</span>{" "}
-//                       <TbFidgetSpinner className="animate-spin" />
-//                     </span>
-//                   ) : (
-//                     <span> Update</span>
-//                   )}
-//                 </Button>
-//               </ModalFooter>
-//             </form>
-//           )}
-//         </ModalContent>
-//       </Modal>
-//     </>
-//   );
-// }

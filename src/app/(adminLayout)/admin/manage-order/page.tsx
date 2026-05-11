@@ -282,7 +282,7 @@ const ManageOrder = () => {
   };
 
   return (
-    <div className="col-span-12 lg:col-span-9">
+    <div>
       <Card className="shadow-sm">
         <CardBody className="p-0">
           <div className="flex flex-col gap-4">
