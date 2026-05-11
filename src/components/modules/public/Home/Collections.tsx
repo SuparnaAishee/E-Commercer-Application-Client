@@ -59,8 +59,7 @@ const COLLECTIONS: CollectionDef[] = [
     title: "Stay active",
     subtitle: "Gear up for the run, ride, or weekend trail.",
     href: "/products?category=sports",
-    match: (p) =>
-      ["Sports & Outdoors", "Toys & Games"].includes(p.category?.name ?? ""),
+    match: (p) => p.category?.name === "Sports & Outdoor",
     surface: "from-orange-500 to-amber-500",
     textOnDark: true,
   },
