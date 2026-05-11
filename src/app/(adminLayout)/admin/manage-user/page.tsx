@@ -204,7 +204,7 @@ const ManageUsers = () => {
     }, 500);
   };
     const handleFilterChange = (key: React.Key) => {
-    setRoleFilter(key);
+    setRoleFilter(String(key));
     // Reset to first page when filtering
     if (page !== 1) setPage(1);
 

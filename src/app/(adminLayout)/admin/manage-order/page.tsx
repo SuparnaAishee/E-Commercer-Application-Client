@@ -130,7 +130,7 @@ const ManageOrder = () => {
     }, 500);
   };
   const handleFilterChange = (key: React.Key) => {
-    setStatusFilter(key);
+    setStatusFilter(String(key));
     // Reset to first page when filtering
     if (page !== 1) setPage(1);
 
